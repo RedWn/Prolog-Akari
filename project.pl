@@ -68,56 +68,8 @@ neighbor_of(cell(X, Y), cell(A, B)) :-
 all_neighbors_of(cell(X, Y), List) :- 
     findall(cell(A, B), neighbor_of(cell(X, Y), cell(A, B)), List).
 
-% Returns all valid cells to the left and the right
-xray_forward_of(cell(X,Y),cell(A,B)):-
-    X1 is X+1,
-    is_cell_valid(X1, Y),\+wall(X1,Y),(
-    A is X1,
-    B is Y;
-
-    X1 is X+1,
-    xray_forward_of(cell(X1,Y),cell(A,B))).
-
-xray_backward_of(cell(X,Y),cell(A,B)):-
-    X1 is X-1,
-    is_cell_valid(X1, Y),\+wall(X1,Y),(
-    A is X1,
-    B is Y;
-
-    X1 is X-1,
-    xray_backward_of(cell(X1,Y),cell(A,B))).
 
 
-xray_of(cell(X,Y),List):-
-    findall(cell(A, B), xray_forward_of(cell(X, Y), cell(A, B)), List1),
-    findall(cell(A, B), xray_backward_of(cell(X, Y), cell(A, B)), List2),
-    append(List1,List2,List).
-
-
-% Returns all valid cells under and above
-yray_forward_of(cell(X,Y),cell(A,B)):-
-    Y1 is Y+1,
-    is_cell_valid(X, Y1),\+wall(X,Y1),(
-    A is X,
-    B is Y1;
-
-    Y1 is Y+1,
-    yray_forward_of(cell(X,Y1),cell(A,B))).
-
-yray_backward_of(cell(X,Y),cell(A,B)):-
-    Y1 is Y-1,
-    is_cell_valid(X, Y1),\+wall(X,Y1),(
-    A is X,
-    B is Y1;
-
-    Y1 is Y-1,
-    yray_backward_of(cell(X,Y1),cell(A,B))).
-
-
-yray_of(cell(X,Y),List):-
-    findall(cell(A, B), yray_forward_of(cell(X, Y), cell(A, B)), List1),
-    findall(cell(A, B), yray_backward_of(cell(X, Y), cell(A, B)), List2),
-    append(List1,List2,List).
 
 % Counts the number of lights in a given list
 % exploration of kind count_light_cells(L,R) is not working
@@ -141,12 +93,12 @@ get_all_light_cells(L,C):-findall(cell(X,Y),light(cell(X,Y)),L),length(L, C).
      List.length == NumberOfLights.
 
 %all_cells_lighted(cell(8,8)).
+
  all_cells_lighted(cell(X,Y)) :- % cell(1,1)
      X<8->X1 is X+1, 
      all_cells_lighted(cell(X1,Y)),
     Y<8->Y1 is Y+1,
      all_cells_lighted(cell(X,Y1)),
-     is_cell_valid(X,Y),
      is_cell_lighted(cell(X,Y)).  % waiting for hassan 
 
 % no_double_light :-
