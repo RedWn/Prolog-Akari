@@ -71,13 +71,19 @@ neighbor_of(cell(X, Y), cell(A, B)) :-
 all_neighbors_of(cell(X, Y), List) :- 
     findall(cell(A, B), neighbor_of(cell(X, Y), cell(A, B)), List).
 
-
-
-
 % Counts the number of lights in a given list
 % exploration of kind count_light_cells(L,R) is not working
-count_light_cells([],0).
-count_light_cells([H|T],R):-count_light_cells(T,R0),(light(H)->R is R0+1;R is R0).
+count_light_cells__([], Accumulator, Accumulator).
+count_light_cells__([H | T], Accumulator, Result) :-
+    (
+        light(H) -> 
+            NewAccumulator is Accumulator + 1,
+            count_light_cells__(T, NewAccumulator, Result);
+
+            count_light_cells__(T, Accumulator, Result)
+    ).
+
+count_light_cells(List, Result) :- count_light_cells__(List, 0, Result).
 
 % Returns all the lights in L and their count in C
 get_all_light_cells(L,C):-findall(cell(X,Y),light(cell(X,Y)),L),length(L, C).
