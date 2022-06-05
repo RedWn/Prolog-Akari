@@ -145,9 +145,10 @@ get_all_light_cells(L,C):-findall(cell(X,Y),light(cell(X,Y)),L),length(L, C).
      is_cell_valid(X1,Y),
      all_cells_lighted(cell(X1,Y)),
      Y1 is Y+1, 
-     is_cell_valid(X,Y+1),
-     all_cells_lighted(cell(X,Y+1)),
+     is_cell_valid(X,Y1),
+     all_cells_lighted(cell(X,Y1)),
      is_cell_lighted(cell(X,Y)).  % waiting for hassan 
+
 % no_double_light :-
 %     foreach light in game,
 %     check if there's another light in its x or y rays.
