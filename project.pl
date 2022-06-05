@@ -39,37 +39,37 @@ is_cell_valid(X, Y) :-
 % Note that diagonal cells aren't considered adjacent.
 adjacent_to(cell(X, Y), cell(A, B)) :-
     A is X + 1,
-    B is Y, !;
+    B is Y;
     
     A is X - 1,
-    B is Y, !;
+    B is Y;
         
     A is X,
-    B is Y + 1, !;
+    B is Y + 1;
         
     A is X,
-    B is Y - 1, !.
+    B is Y - 1.
         
 
 % Checks if two cells are neighbors.
 neighbor_of(cell(X, Y), cell(A, B)) :-
     is_cell_valid(X, Y),
-    is_cell_valid(A, B),
-    adjacent_to(cell(X, Y), cell(A, B)).
+    adjacent_to(cell(X, Y), cell(A, B)),
+    is_cell_valid(A, B).
            
 
 all_neighbors_of(cell(X, Y), List) :- 
-    findall([A, B], neighbor_of(X, Y, [A, B]), List).
+    findall(cell(A, B), neighbor_of(cell(X, Y), cell(A, B)), List).
 
-xray_of(cell(X, Y), L) :-
-    X1 is X + 1,
-    size(Width, Height),
-    X1 < Width,
-    \+ wall(X1,Y),
-    append([], [X1,Y],L1),
-    append(L,L1,L),
-    xray_of(X1,Y,L);
-    !.
+% xray_of(cell(X, Y), L) :-
+%     X1 is X + 1,
+%     size(Width, Height),
+%     X1 < Width,
+%     \+ wall(X1,Y),
+%     append([], [X1,Y],L1),
+%     append(L,L1,L),
+%     xray_of(X1,Y,L);
+%     !.
 
 % Counts the number of lights in a given list
 % count_light_cells([], 0).
