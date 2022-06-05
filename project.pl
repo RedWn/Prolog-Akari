@@ -131,9 +131,16 @@ does_wall_cell_have_enough_lights(cell(X, Y)):-
      all_cells_lighted(cell(X,Y1)),
      is_cell_lighted(cell(X,Y)).  % waiting for hassan 
 
-% no_double_light :-
-%     foreach light in game,
-%     check if there's another light in its x or y rays.
+
+% Returns true if there is more than one light in a single cross (with respect to rays)
+% in the whole grid
+plenty_lights_within_cross:-light(X),xray_of(X,Lx),count_light_cells(Lx,C1)
+                                    ,yray_of(X,Ly),count_light_cells(Ly,C2)
+                                    ,C1+C2>0.
+
+% Returns true if there is no two lights (or more) in a single cross (with respect to rays)
+% in the whole grid
+no_double_light:- \+ plenty_lights_within_cross.
 
 
 check_for_all_lights([]).
