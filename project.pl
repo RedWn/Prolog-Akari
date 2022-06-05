@@ -1,5 +1,10 @@
+% Size of the game's grid
+% size(NumberOfRows, NumberOfColumns).
+% Note that indexing starts from 1 for both rows and columns.
 size(8,8).
 
+% These cells are walls without numbers
+% wall(XPosition, YPosition).
 wall(4,1).
 wall(4,5).
 wall(5,4).
@@ -13,6 +18,8 @@ wall(7,6).
 wall(7,7).
 wall(8,3).
 
+% These cells are walls that contain numbers.
+% wall_num(XPosition, YPosition, NumberOfAdjacentLights).
 wall_num(1,6,1).
 wall_num(2,2,3).
 wall_num(3,7,0).
@@ -21,11 +28,83 @@ wall_num(5,8,0).
 wall_num(6,2,2).
 wall_num(7,6,1).
 
-neb_of(X,Y,[X1,Y1]):- size(H,W),(X1 is X+1,Y1 is Y,X1=<W;
-                        X1 is X,Y1 is Y+1,Y1=<H;
-                        X1 is X-1,Y1 is Y,X1>0;
-                        X1 is X,Y1 is Y-1,Y1>0).
+% A cell is valid if it's positioned within the boundaries of the grid.
+is_cell_valid(X, Y) :-
+    X >= 1, Y >= 1,
+    size(Width, Height),
+    X =< Width,
+    Y =< Height.
 
-all_neb_of(X,Y,L):- findall([X1,Y1],neb_of(X,Y,[X1,Y1]), L).
+% Checks if a certain cell is adjacent to another one.
+% Note that diagonal cells aren't considered adjacent.
+adjacent_to(cell(X, Y), cell(A, B)) :-
+    A is X + 1,
+    B is Y, !;
+    
+    A is X - 1,
+    B is Y, !;
+        
+    A is X,
+    B is Y + 1, !;
+        
+    A is X,
+    B is Y - 1, !.
+        
 
-xray_of(X,Y,L):- X1 is X+1,size(Xs,Ys),X1 < Xs,\+wall(X1,Y),append([], [X1,Y],L1),append(L,L1,L),xray_of(X1,Y,L);!.
+% Checks if two cells are neighbors.
+neighbor_of(cell(X, Y), cell(A, B)) :-
+    is_cell_valid(X, Y),
+    is_cell_valid(A, B),
+    adjacent_to(cell(X, Y), cell(A, B)).
+           
+
+all_neighbors_of(cell(X, Y), List) :- 
+    findall([A, B], neighbor_of(X, Y, [A, B]), List).
+
+xray_of(cell(X, Y), L) :-
+    X1 is X + 1,
+    size(Width, Height),
+    X1 < Width,
+    \+ wall(X1,Y),
+    append([], [X1,Y],L1),
+    append(L,L1,L),
+    xray_of(X1,Y,L);
+    !.
+
+% Counts the number of lights in a given list
+% count_light_cells([], 0).
+% count_light_cells(List, Count) :-
+%     List = [H | T],
+%     light(H),
+%     NewCount is Count + 1,
+%     count_light_cells(T).
+
+% is_cell_lighted(cell(X, Y)) :-
+%     approach 1: each time we store a new light bulb
+%     we indicate that cell(X, Y) is either lighted or not.
+
+%     approach 2: foreach light in the game, check both its
+%     x and y rays if they can light up the given cell.
+%     Don't forget that if the cell in itself is a light, then it's lighted
+
+% does_wall_cell_have_enough_lights(cell(X, Y)) :-
+%     wall_num(X, Y, NumberOfLights),
+%     get_all_adjacent_lights(List),
+%     List.length == NumberOfLights.
+
+% all_cells_lighted :-
+%     foreach cell in grid,
+%     is_cell_lighted(cell).
+
+% no_double_light :-
+%     foreach light in game,
+%     check if there's another light in its x or y rays.
+
+% light_count_correct :-
+%     foreach wall_with_number,
+%     does_wall_cell_have_enough_lights.
+
+% solved :-
+%     all_cells_lighted,
+%     no_double_light,
+%     light_count_correct .
