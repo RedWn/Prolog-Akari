@@ -28,6 +28,14 @@ wall_num(5,8,0).
 wall_num(6,2,2).
 wall_num(7,6,1).
 
+
+% Light Cells (for testing purposes)
+light(cell(2,2)).
+light(cell(1,3)).
+light(cell(6,1)).
+light(cell(8,2)).
+
+
 % A cell is valid if it's positioned within the boundaries of the grid.
 is_cell_valid(X, Y) :-
     X >= 1, Y >= 1,
@@ -72,12 +80,9 @@ all_neighbors_of(cell(X, Y), List) :-
 %     !.
 
 % Counts the number of lights in a given list
-% count_light_cells([], 0).
-% count_light_cells(List, Count) :-
-%     List = [H | T],
-%     light(H),
-%     NewCount is Count + 1,
-%     count_light_cells(T).
+% exploration of kind count_light_cells(L,R) is not working (yet)
+count_light_cells([],0).
+count_light_cells([H|T],R):-count_light_cells(T,R0),(light(H)->R is R0+1;R is R0).
 
 % is_cell_lighted(cell(X, Y)) :-
 %     approach 1: each time we store a new light bulb
