@@ -80,9 +80,12 @@ all_neighbors_of(cell(X, Y), List) :-
 %     !.
 
 % Counts the number of lights in a given list
-% exploration of kind count_light_cells(L,R) is not working (yet)
+% exploration of kind count_light_cells(L,R) is not working
 count_light_cells([],0).
 count_light_cells([H|T],R):-count_light_cells(T,R0),(light(H)->R is R0+1;R is R0).
+
+% Returns all the lights in L and their count in C
+get_all_light_cells(L,C):-findall(cell(X,Y),light(cell(X,Y)),L),length(L, C).
 
 % is_cell_lighted(cell(X, Y)) :-
 %     approach 1: each time we store a new light bulb
