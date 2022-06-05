@@ -136,6 +136,18 @@ get_all_light_cells(L,C):-findall(cell(X,Y),light(cell(X,Y)),L),length(L, C).
 %     x and y rays if they can light up the given cell.
 %     Don't forget that if the cell in itself is a light, then it's lighted
 
+get_all_adjacent_lights_number(cell(X,Y),N):-
+    all_neighbors_of(cell(X,Y),ListOfNeighbors),
+    findall(cell(X,Y), light(X,Y), ListofLights),
+    intersection(ListOfNeighbors, ListofLights, List),
+    length(List, N).
+
+does_wall_cell_have_enough_lights(cell(X, Y)):-
+    wall_num(X,Y,N),
+    get_adjacent_lights_number(cell(X,Y),N1),
+    N =:= N1.
+    
+
 % does_wall_cell_have_enough_lights(cell(X, Y)) :-
 %     wall_num(X, Y, NumberOfLights),
 %     get_all_adjacent_lights(List),
@@ -160,9 +172,17 @@ plenty_lights_within_cross:-light(X),xray_of(X,Lx),count_light_cells(Lx,C1)
 % in the whole grid
 no_double_light:- \+ plenty_lights_within_cross.
 
-% light_count_correct :-
-%     foreach wall_with_number,
-%     does_wall_cell_have_enough_lights.
+
+check_for_all_lights([]).
+check_for_all_lights([H|T]):-
+    cell(X,Y) is H,
+    does_wall_cell_have_enough_lights(cell(X, Y)),
+    check_for_all_lights(T).
+
+
+light_count_correct:-
+    findall(cell(X,Y), wall_num(X,Y,Z), L),
+    check_for_all_lights(L).
 
 % solved :-
 %     all_cells_lighted,
