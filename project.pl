@@ -21,7 +21,10 @@ wall_num(5,8,0).
 wall_num(6,2,2).
 wall_num(7,6,1).
 
-neb_of(X,Y,[X1,Y1]):- X1 is X+1,Y1 is Y;X1 is X,Y1 is Y+1;X1 is X-1,Y1 is Y;X1 is X,Y1 is Y-1.
+neb_of(X,Y,[X1,Y1]):- size(H,W),(X1 is X+1,Y1 is Y,X1=<W;
+                        X1 is X,Y1 is Y+1,Y1=<H;
+                        X1 is X-1,Y1 is Y,X1>0;
+                        X1 is X,Y1 is Y-1,Y1>0).
 
 all_neb_of(X,Y,L):- findall([X1,Y1],neb_of(X,Y,[X1,Y1]), L).
 
