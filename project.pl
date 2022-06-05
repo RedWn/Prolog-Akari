@@ -136,15 +136,19 @@ get_all_light_cells(L,C):-findall(cell(X,Y),light(cell(X,Y)),L),length(L, C).
 %     x and y rays if they can light up the given cell.
 %     Don't forget that if the cell in itself is a light, then it's lighted
 
-% does_wall_cell_have_enough_lights(cell(X, Y)) :-
-%     wall_num(X, Y, NumberOfLights),
-%     get_all_adjacent_lights(List),
-%     List.length == NumberOfLights.
+ does_wall_cell_have_enough_lights(cell(X, Y)) :-
+     wall_num(X, Y, NumberOfLights),
+     get_all_adjacent_lights(List),
+     List.length == NumberOfLights.
 
  all_cells_lighted(cell(X,Y)) :- % cell(1,1)
-     all_cells_lighted(cell(X+1,Y)),
+     X1 is X+1 
+     is_cell_valid(X1,Y),
+     all_cells_lighted(cell(X1,Y)),
+     Y1 is Y+1, 
+     is_cell_valid(X,Y+1),
      all_cells_lighted(cell(X,Y+1)),
-     is_cell_lighted(cell(X,Y)).
+     is_cell_lighted(cell(X,Y)).  % waiting for hassan 
 % no_double_light :-
 %     foreach light in game,
 %     check if there's another light in its x or y rays.
