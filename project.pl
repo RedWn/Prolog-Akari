@@ -5,28 +5,28 @@ size(8,8).
 
 % These cells are walls without numbers
 % wall(XPosition, YPosition).
-wall(4,1).
-wall(4,5).
-wall(5,4).
-wall(5,8).
-wall(1,6).
-wall(2,2).
-wall(2,3).
-wall(3,7).
+wall(3,1).
 wall(6,2).
+wall(7,2).
+wall(2,3).
+wall(4,4).
+wall(8,4).
+wall(1,5).
+wall(5,5).
 wall(7,6).
-wall(7,7).
-wall(8,3).
+wall(2,7).
+wall(3,7).
+wall(6,8).
 
 % These cells are walls that contain numbers.
 % wall_num(XPosition, YPosition, NumberOfAdjacentLights).
-wall_num(1,6,1).
-wall_num(2,2,3).
-wall_num(3,7,0).
-wall_num(5,4,4).
-wall_num(5,8,0).
-wall_num(6,2,2).
-wall_num(7,6,1).
+wall_num(6,2,1).
+wall_num(2,3,2).
+wall_num(4,4,4).
+wall_num(8,4,0).
+wall_num(7,6,0).
+wall_num(2,7,3).
+wall_num(6,8,1).
 
 
 % Light Cells (for testing purposes)
@@ -41,7 +41,7 @@ is_cell_valid(X, Y) :-
     X >= 1, Y >= 1,
     size(Width, Height),
     X =< Width,
-    Y =< Height.
+    Y =< Height,\+wall(X,Y).
 
 % Checks if a certain cell is adjacent to another one.
 % Note that diagonal cells aren't considered adjacent.
@@ -69,15 +69,56 @@ neighbor_of(cell(X, Y), cell(A, B)) :-
 all_neighbors_of(cell(X, Y), List) :- 
     findall(cell(A, B), neighbor_of(cell(X, Y), cell(A, B)), List).
 
-% xray_of(cell(X, Y), L) :-
-%     X1 is X + 1,
-%     size(Width, Height),
-%     X1 < Width,
-%     \+ wall(X1,Y),
-%     append([], [X1,Y],L1),
-%     append(L,L1,L),
-%     xray_of(X1,Y,L);
-%     !.
+% Returns all valid cells to the left and the right
+xray_forward_of(cell(X,Y),cell(A,B)):-
+    X1 is X+1,
+    is_cell_valid(X1, Y),(
+    A is X1,
+    B is Y;
+
+    X1 is X+1,
+    xray_forward_of(cell(X1,Y),cell(A,B))).
+
+xray_backward_of(cell(X,Y),cell(A,B)):-
+    X1 is X-1,
+    is_cell_valid(X1, Y),(
+    A is X1,
+    B is Y;
+
+    X1 is X-1,
+    xray_backward_of(cell(X1,Y),cell(A,B))).
+
+
+xray_of(cell(X,Y),List):-
+    findall(cell(A, B), xray_forward_of(cell(X, Y), cell(A, B)), List1),
+    findall(cell(A, B), xray_backward_of(cell(X, Y), cell(A, B)), List2),
+    append(List1,List2,List).
+
+
+% Returns all valid cells under and above
+yray_forward_of(cell(X,Y),cell(A,B)):-
+    Y1 is Y+1,
+    is_cell_valid(X, Y1),(
+    A is X,
+    B is Y1;
+
+    Y1 is Y+1,
+    yray_forward_of(cell(X,Y1),cell(A,B))).
+
+yray_backward_of(cell(X,Y),cell(A,B)):-
+    Y1 is Y-1,
+    is_cell_valid(X, Y1),(
+    A is X,
+    B is Y1;
+
+    Y1 is Y-1,
+    yray_backward_of(cell(X,Y1),cell(A,B))).
+
+
+yray_of(cell(X,Y),List):-
+    findall(cell(A, B), yray_forward_of(cell(X, Y), cell(A, B)), List1),
+    findall(cell(A, B), yray_backward_of(cell(X, Y), cell(A, B)), List2),
+    append(List1,List2,List).
 
 % Counts the number of lights in a given list
 % exploration of kind count_light_cells(L,R) is not working
