@@ -5,28 +5,28 @@ size(8,8).
 
 % These cells are walls without numbers
 % wall(XPosition, YPosition).
-wall(4,1).
-wall(4,5).
-wall(5,4).
-wall(5,8).
-wall(1,6).
-wall(2,2).
-wall(2,3).
-wall(3,7).
+wall(3,1).
 wall(6,2).
+wall(7,2).
+wall(2,3).
+wall(4,4).
+wall(8,4).
+wall(1,5).
+wall(5,5).
 wall(7,6).
-wall(7,7).
-wall(8,3).
+wall(2,7).
+wall(3,7).
+wall(6,8).
 
 % These cells are walls that contain numbers.
 % wall_num(XPosition, YPosition, NumberOfAdjacentLights).
-wall_num(1,6,1).
-wall_num(2,2,3).
-wall_num(3,7,0).
-wall_num(5,4,4).
-wall_num(5,8,0).
-wall_num(6,2,2).
-wall_num(7,6,1).
+wall_num(6,2,1).
+wall_num(2,3,2).
+wall_num(4,4,4).
+wall_num(8,4,0).
+wall_num(7,6,0).
+wall_num(2,7,3).
+wall_num(6,8,1).
 
 % A cell is valid if it's positioned within the boundaries of the grid.
 is_cell_valid(X, Y) :-
