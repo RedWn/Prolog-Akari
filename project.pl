@@ -136,7 +136,7 @@ get_all_light_cells(L,C):-findall(cell(X,Y),light(cell(X,Y)),L),length(L, C).
 %     x and y rays if they can light up the given cell.
 %     Don't forget that if the cell in itself is a light, then it's lighted
 
-get_all_adjacent_lights_number(cell(X,Y),N):-
+get_adjacent_lights_number(cell(X,Y),N):-
     all_neighbors_of(cell(X,Y),ListOfNeighbors),
     findall(cell(X,Y), light(X,Y), ListofLights),
     intersection(ListOfNeighbors, ListofLights, List),
