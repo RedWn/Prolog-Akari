@@ -28,20 +28,18 @@ wall_num(7,6,0).
 wall_num(2,7,3).
 wall_num(6,8,1).
 
-
 % Light Cells (for testing purposes)
 light(cell(2,2)).
 light(cell(1,3)).
 light(cell(6,1)).
 light(cell(8,2)).
 
-
-% A cell is valid if it's positioned within the boundaries of the grid.
+% A cell is valid if it's positioned within the boundaries of the grid
 is_cell_valid(X, Y) :-
     X >= 1, Y >= 1,
     size(Width, Height),
     X =< Width,
-    Y =< Height,\+wall(X,Y).
+    Y =< Height.
 
 % Checks if a certain cell is adjacent to another one.
 % Note that diagonal cells aren't considered adjacent.
@@ -63,9 +61,10 @@ adjacent_to(cell(X, Y), cell(A, B)) :-
 neighbor_of(cell(X, Y), cell(A, B)) :-
     is_cell_valid(X, Y),
     adjacent_to(cell(X, Y), cell(A, B)),
-    is_cell_valid(A, B).
-           
+    is_cell_valid(A, B),
+    \+ wall(A, B).
 
+% Find all the neighbors of a cell(X, Y) and put them in List           
 all_neighbors_of(cell(X, Y), List) :- 
     findall(cell(A, B), neighbor_of(cell(X, Y), cell(A, B)), List).
 
