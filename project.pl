@@ -148,11 +148,6 @@ does_wall_cell_have_enough_lights(cell(X, Y)):-
     N =:= N1.
     
 
-% does_wall_cell_have_enough_lights(cell(X, Y)) :-
-%     wall_num(X, Y, NumberOfLights),
-%     get_all_adjacent_lights(List),
-%     List.length == NumberOfLights.
-
 %all_cells_lighted(cell(8,8)).
 % all_cells_lighted(cell(X,Y)) :- % cell(1,1)
  %    X<8->X1 is X+1, 
