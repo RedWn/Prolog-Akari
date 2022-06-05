@@ -30,10 +30,20 @@ wall_num(2, 7, 3).
 wall_num(6, 8, 1).
 
 % Light Cells (for testing purposes)
-light(cell(2, 2)).
-light(cell(1, 3)).
 light(cell(6, 1)).
+light(cell(2, 2)).
 light(cell(8, 2)).
+light(cell(1, 3)).
+light(cell(4, 3)).
+light(cell(3, 4)).
+light(cell(5, 4)).
+light(cell(4, 5)).
+light(cell(6, 5)).
+light(cell(2, 6)).
+light(cell(1, 7)).
+light(cell(8, 7)).
+light(cell(2, 8)).
+light(cell(7, 8)).
 
 :-dynamic light/2.
 
@@ -104,7 +114,7 @@ get_all_light_cells(L,C):-findall(cell(X,Y),light(cell(X,Y)),L),length(L, C).
 
 get_adjacent_lights_number(cell(X,Y),N):-
     all_neighbors_of(cell(X,Y),ListOfNeighbors),
-    findall(cell(X,Y), light(X,Y), ListofLights),
+    findall(cell(X1,Y1), light(cell(X1,Y1)), ListofLights),
     intersection(ListOfNeighbors, ListofLights, List),
     length(List, N).
 
@@ -127,8 +137,7 @@ does_wall_cell_have_enough_lights(cell(X, Y)):-
 
 
 check_for_all_lights([]).
-check_for_all_lights([H|T]):-
-    cell(X,Y) is H,
+check_for_all_lights([cell(X,Y)|T]):-
     does_wall_cell_have_enough_lights(cell(X, Y)),
     check_for_all_lights(T).
 
