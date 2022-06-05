@@ -30,20 +30,69 @@ wall_num(2, 7, 3).
 wall_num(6, 8, 1).
 
 % Light Cells (for testing purposes)
-light(cell(6, 1)).
-light(cell(2, 2)).
-light(cell(8, 2)).
+light(cell(1, 1)).
+light(cell(1, 2)).
 light(cell(1, 3)).
 light(cell(4, 3)).
-light(cell(3, 4)).
-light(cell(5, 4)).
-light(cell(4, 5)).
-light(cell(6, 5)).
-light(cell(2, 6)).
+light(cell(1, 5)).
+light(cell(1, 6)).
 light(cell(1, 7)).
-light(cell(8, 7)).
+light(cell(1, 8)).
+light(cell(2, 1)).
+light(cell(2, 2)).
+light(cell(2, 3)).
+light(cell(2, 4)).
+light(cell(2, 5)).
+light(cell(2, 6)).
+light(cell(2, 7)).
 light(cell(2, 8)).
+light(cell(3, 1)).
+light(cell(3, 2)).
+light(cell(3, 3)).
+light(cell(3, 4)).
+light(cell(3, 5)).
+light(cell(3, 6)).
+light(cell(3, 7)).
+light(cell(3, 8)).
+light(cell(4, 1)).
+light(cell(4, 2)).
+light(cell(4, 3)).
+light(cell(4, 4)).
+light(cell(4, 5)).
+light(cell(4, 6)).
+light(cell(4, 7)).
+light(cell(4, 8)).
+light(cell(5, 1)).
+light(cell(5, 2)).
+light(cell(5, 3)).
+light(cell(5, 4)).
+light(cell(5, 5)).
+light(cell(5, 6)).
+light(cell(5, 7)).
+light(cell(5, 8)).
+light(cell(6, 1)).
+light(cell(6, 2)).
+light(cell(6, 3)).
+light(cell(6, 4)).
+light(cell(6, 5)).
+light(cell(6, 6)).
+light(cell(6, 7)).
+light(cell(6, 8)).
+light(cell(7, 1)).
+light(cell(7, 2)).
+light(cell(7, 3)).
+light(cell(7, 4)).
+light(cell(7, 5)).
+light(cell(7, 6)).
+light(cell(7, 7)).
 light(cell(7, 8)).
+light(cell(8, 1)).
+light(cell(8, 2)).
+light(cell(8, 3)).
+light(cell(8, 4)).
+light(cell(8, 5)).
+light(cell(8, 6)).
+light(cell(8, 7)).
 
 :-dynamic light/2.
 
@@ -126,11 +175,10 @@ does_wall_cell_have_enough_lights(cell(X, Y)):-
 
  all_cells_lighted(cell(X,Y)) :- % cell(1,1)
      X<8->X1 is X+1, 
-     all_cells_lighted(cell(X1,Y)),
-    Y<8->Y1 is Y+1,
-     all_cells_lighted(cell(X,Y1)),
-     is_cell_lighted(cell(X,Y)).  % waiting for hassan 
-
+     all_cells_lighted(cell(X1,Y));
+     Y<8->Y1 is Y+1,
+     all_cells_lighted(cell(X,Y1)); % waiting for hassan 
+    light(cell(X,Y)). 
 % no_double_light :-
 %     foreach light in game,
 %     check if there's another light in its x or y rays.
