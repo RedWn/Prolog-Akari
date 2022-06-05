@@ -35,6 +35,8 @@ light(cell(1, 3)).
 light(cell(6, 1)).
 light(cell(8, 2)).
 
+:-dynamic light/2.
+
 % A cell is valid if it's positioned within the boundaries of the grid
 is_cell_valid(X, Y) :-
     X >= 1, Y >= 1,
