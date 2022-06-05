@@ -140,13 +140,13 @@ get_all_light_cells(L,C):-findall(cell(X,Y),light(cell(X,Y)),L),length(L, C).
      get_all_adjacent_lights(List),
      List.length == NumberOfLights.
 
+%all_cells_lighted(cell(8,8)).
  all_cells_lighted(cell(X,Y)) :- % cell(1,1)
-     X1 is X+1 
-     is_cell_valid(X1,Y),
+     X<8->X1 is X+1, 
      all_cells_lighted(cell(X1,Y)),
-     Y1 is Y+1, 
-     is_cell_valid(X,Y1),
+    Y<8->Y1 is Y+1,
      all_cells_lighted(cell(X,Y1)),
+     is_cell_valid(X,Y),
      is_cell_lighted(cell(X,Y)).  % waiting for hassan 
 
 % no_double_light :-
