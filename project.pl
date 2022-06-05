@@ -1,3 +1,4 @@
+:- ensure_loaded(xy_ray).
 % Size of the game's grid
 % size(NumberOfRows, NumberOfColumns).
 % Note that indexing starts from 1 for both rows and columns.
@@ -87,19 +88,17 @@ get_all_light_cells(L,C):-findall(cell(X,Y),light(cell(X,Y)),L),length(L, C).
 %     x and y rays if they can light up the given cell.
 %     Don't forget that if the cell in itself is a light, then it's lighted
 
- does_wall_cell_have_enough_lights(cell(X, Y)) :-
-     wall_num(X, Y, NumberOfLights),
-     get_all_adjacent_lights(List),
-     List.length == NumberOfLights.
+ % does_wall_cell_have_enough_lights(cell(X, Y)) :-
+ %     wall_num(X, Y, NumberOfLights),
+ %     get_all_adjacent_lights(List),
+ %     List.length == NumberOfLights.
 
-%all_cells_lighted(cell(8,8)).
-
- all_cells_lighted(cell(X,Y)) :- % cell(1,1)
-     X<8->X1 is X+1, 
-     all_cells_lighted(cell(X1,Y)),
-    Y<8->Y1 is Y+1,
-     all_cells_lighted(cell(X,Y1)),
-     is_cell_lighted(cell(X,Y)).  % waiting for hassan 
+ %all_cells_lighted(cell(X,Y)) :- % cell(1,1)
+ %    X<8->X1 is X+1, 
+ %    all_cells_lighted(cell(X1,Y)),
+ %   Y<8->Y1 is Y+1,
+ %    all_cells_lighted(cell(X,Y1)),
+ %    is_cell_lighted(cell(X,Y)).  % waiting for hassan 
 
 % no_double_light :-
 %     foreach light in game,
