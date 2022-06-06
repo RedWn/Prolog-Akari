@@ -3,7 +3,7 @@
 % Returns all valid cells to the left and the right
 xray_forward_of(cell(X,Y),cell(A,B)):-
     X1 is X+1,
-    is_cell_valid(X1, Y),\+wall(X1,Y),(
+    is_cell_valid(cell(X1, Y)),\+wall(X1,Y),(
     A is X1,
     B is Y;
 
@@ -12,7 +12,7 @@ xray_forward_of(cell(X,Y),cell(A,B)):-
 
 xray_backward_of(cell(X,Y),cell(A,B)):-
     X1 is X-1,
-    is_cell_valid(X1, Y),\+wall(X1,Y),(
+    is_cell_valid(cell(X1, Y)),\+wall(X1,Y),(
     A is X1,
     B is Y;
 
@@ -29,7 +29,7 @@ xray_of(cell(X,Y),List):-
 % Returns all valid cells under and above
 yray_forward_of(cell(X,Y),cell(A,B)):-
     Y1 is Y+1,
-    is_cell_valid(X, Y1),\+wall(X,Y1),(
+    is_cell_valid(cell(X, Y1)),\+wall(X,Y1),(
     A is X,
     B is Y1;
 
@@ -38,7 +38,7 @@ yray_forward_of(cell(X,Y),cell(A,B)):-
 
 yray_backward_of(cell(X,Y),cell(A,B)):-
     Y1 is Y-1,
-    is_cell_valid(X, Y1),\+wall(X,Y1),(
+    is_cell_valid(cell(X, Y1)),\+wall(X,Y1),(
     A is X,
     B is Y1;
 

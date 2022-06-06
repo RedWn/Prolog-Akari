@@ -48,7 +48,7 @@ light(cell(7, 8)).
 :- dynamic light/2.
 
 % A cell is valid if it's positioned within the boundaries of the grid
-is_cell_valid(X, Y) :-
+is_cell_valid(cell(X, Y)) :-
     X >= 1, Y >= 1,
     size(Width, Height),
     X =< Width,
@@ -68,13 +68,12 @@ adjacent_to(cell(X, Y), cell(A, B)) :-
         
     A is X,
     B is Y - 1.
-        
 
 % Checks if two cells are neighbors.
 neighbor_of(cell(X, Y), cell(A, B)) :-
-    is_cell_valid(X, Y),
+    is_cell_valid(cell(X, Y)),
     adjacent_to(cell(X, Y), cell(A, B)),
-    is_cell_valid(A, B),
+    is_cell_valid(cell(A, B)),
     \+ wall(A, B).
 
 % Find all the neighbors of a cell(X, Y) and put them in List           
@@ -126,7 +125,8 @@ does_wall_cell_have_enough_lights(cell(X, Y)) :-
      all_cells_lighted(cell(X1,Y));
      Y<8->Y1 is Y+1,
      all_cells_lighted(cell(X,Y1)); % waiting for hassan 
-    light(cell(X,Y)). 
+    light(cell(X,Y)).
+
 % Returns true if there is more than one light in a single cross (with respect to rays)
 % in the whole grid
 plenty_lights_within_cross:-light(X),xray_of(X,Lx),count_light_cells(Lx,C1)
@@ -136,7 +136,6 @@ plenty_lights_within_cross:-light(X),xray_of(X,Lx),count_light_cells(Lx,C1)
 % Returns true if there is no two lights (or more) in a single cross (with respect to rays)
 % in the whole grid
 no_double_light:- \+ plenty_lights_within_cross.
-
 
 check_for_all_lights([]).
 check_for_all_lights([cell(X,Y)|T]):-
