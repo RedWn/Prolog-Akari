@@ -80,6 +80,15 @@ neighbor_of(cell(X, Y), cell(A, B)) :-
 all_neighbors_of(cell(X, Y), List) :- 
     findall(cell(A, B), neighbor_of(cell(X, Y), cell(A, B)), List).
 
+% TODO: Requires re-writing
+ all_cells_lighted :- 
+    cell(X, Y),
+    is_cell_valid(cell(X, Y)),
+     X < 8 -> X1 is X+1, 
+     
+    Y<8->Y1 is Y+1.
+
+
 % Counts the number of lights in a given list
 % exploration of kind count_light_cells(L,R) is not working
 count_light_cells__([], Accumulator, Accumulator).
@@ -94,7 +103,7 @@ count_light_cells__([H | T], Accumulator, Result) :-
 
 count_light_cells(List, Result) :- count_light_cells__(List, 0, Result).
 
-% Returns all the lights in L and their count in C
+% Returns all the lights in List and their count in Count
 get_all_light_cells(List, Count) :-
     findall(cell(X,Y), light(cell(X, Y)), List),
     length(List, Count).
@@ -110,42 +119,41 @@ is_cell_lighted(cell(X, Y)) :-
         LightsInYRay > 0
     ).
 
+% Returns true if there is more than one light in a single axis in the whole grid.
+more_than_one_light_in_axis :- 
+    % Get a random light
+    light(Cell),
+
+    % Fetch X and Y rays and count lights in them.
+    xray_of(Cell, XRay),
+    yray_of(Cell, YRay),
+    count_light_cells(XRay, LightsCountInXRay),
+    count_light_cells(YRay, LightsCountInYRay),
+
+    LightsCountInXRay + LightsCountInYRay >= 1.
+
+
+no_double_light :- \+ more_than_one_light_in_axis.
+
 get_adjacent_lights_count(cell(X, Y), Count) :-
-    all_neighbors_of(cell(X,Y), AdjacentLightsList),
+    all_neighbors_of(cell(X, Y), AdjacentLightsList),
     count_light_cells(AdjacentLightsList, Count).
 
 does_wall_cell_have_enough_lights(cell(X, Y)) :-
     wall_num(X, Y, GoalNumberOfLights),
     get_adjacent_lights_count(cell(X, Y), ActualNumberOfLights),
     GoalNumberOfLights =:= ActualNumberOfLights.
-    
 
- all_cells_lighted(cell(X,Y)) :- % cell(1,1)
-     X<8->X1 is X+1, 
-     all_cells_lighted(cell(X1,Y));
-     Y<8->Y1 is Y+1,
-     all_cells_lighted(cell(X,Y1)); % waiting for hassan 
-    light(cell(X,Y)).
-
-% Returns true if there is more than one light in a single cross (with respect to rays)
-% in the whole grid
-plenty_lights_within_cross:-light(X),xray_of(X,Lx),count_light_cells(Lx,C1)
-                                    ,yray_of(X,Ly),count_light_cells(Ly,C2)
-                                    ,C1+C2>0.
-
-% Returns true if there is no two lights (or more) in a single cross (with respect to rays)
-% in the whole grid
-no_double_light:- \+ plenty_lights_within_cross.
-
-check_for_all_lights([]).
-check_for_all_lights([cell(X,Y)|T]):-
+% Iterates over all walls with light numbers
+% and checks if the number of adjacent lights is correct.
+check_for_lights_of_wall_num([]).
+check_for_lights_of_wall_num([cell(X, Y) | T]) :-
     does_wall_cell_have_enough_lights(cell(X, Y)),
-    check_for_all_lights(T).
+    check_for_lights_of_wall_num(T).
 
-
-light_count_correct:-
-    findall(cell(X,Y), wall_num(X,Y,Z), L),
-    check_for_all_lights(L).
+light_count_correct :-
+    findall(cell(X,Y), wall_num(X, Y, _), WallsWithNumbersList),
+    check_for_lights_of_wall_num(WallsWithNumbersList).
 
 % solved :-
 %     all_cells_lighted,
