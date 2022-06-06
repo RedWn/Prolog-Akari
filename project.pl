@@ -52,7 +52,19 @@ is_cell_valid(cell(X, Y)) :-
     X >= 1, Y >= 1,
     size(Width, Height),
     X =< Width,
-    Y =< Height.
+    Y =< Height. % NOTE: I think this can be just cell(X,Y) instead
+
+% x indices, returns a list with x axes discrete values
+x_indices_private([],0).
+x_indices_private(L,I):-I>0, I0 is I-1, x_indices_private(L0,I0), L=[I|L0].
+x_indices(L):- size(X,_), x_indices_private(L,X).
+
+% y indices, returns a list with y axes discrete values
+y_indices_private([],0).
+y_indices_private(L,I):-I>0, I0 is I-1, y_indices_private(L0,I0), L=[I|L0].
+y_indices(L):- size(_,Y), y_indices_private(L,Y).
+
+cell(X,Y):-x_indices(Lx),y_indices(Ly),member(X,Lx),member(Y,Ly).
 
 % Checks if a certain cell is adjacent to another one.
 % Note that diagonal cells aren't considered adjacent.
