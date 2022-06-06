@@ -55,16 +55,33 @@ is_cell_valid(cell(X, Y)) :-
     Y =< Height. % NOTE: I think this can be just cell(X,Y) instead
 
 % x indices, returns a list with x axes discrete values
-x_indices_private([],0).
-x_indices_private(L,I):-I>0, I0 is I-1, x_indices_private(L0,I0), L=[I|L0].
-x_indices(L):- size(X,_), x_indices_private(L,X).
+x_indices_private([], 0).
+x_indices_private(List, Index) :- 
+    Index > 0,
+    PreviousIndex is Index - 1,
+    x_indices_private(PreviousList, PreviousIndex),
+    List = [Index | PreviousList].
+
+x_indices(List):- size(Width, _), x_indices_private(List, Width).
 
 % y indices, returns a list with y axes discrete values
 y_indices_private([],0).
-y_indices_private(L,I):-I>0, I0 is I-1, y_indices_private(L0,I0), L=[I|L0].
-y_indices(L):- size(_,Y), y_indices_private(L,Y).
+y_indices_private(List, Index) :-
+    Index > 0,
+    PreviousIndex is Index - 1,
+    y_indices_private(PreviousList, PreviousIndex),
+    List=[Index|PreviousList].
 
-cell(X,Y):-x_indices(Lx),y_indices(Ly),member(X,Lx),member(Y,Ly).
+y_indices(List) :- size(_, Height), y_indices_private(List, Height).
+
+get_cell(X, Y) :-
+    x_indices(XIndices),
+    y_indices(YIndices),
+    member(X, XIndices),
+    member(Y, YIndices).
+
+get_all_cells(List) :-
+    findall(cell(X, Y), get_cell(X, Y), List).
 
 % Checks if a certain cell is adjacent to another one.
 % Note that diagonal cells aren't considered adjacent.
@@ -92,13 +109,9 @@ neighbor_of(cell(X, Y), cell(A, B)) :-
 all_neighbors_of(cell(X, Y), List) :- 
     findall(cell(A, B), neighbor_of(cell(X, Y), cell(A, B)), List).
 
-% TODO: Requires re-writing
  all_cells_lighted :- 
-    cell(X, Y),
-    is_cell_valid(cell(X, Y)),
-     X < 8 -> X1 is X+1, 
-     
-    Y<8->Y1 is Y+1.
+    get_all_cells(List),
+    is_list_lighted(List).
 
 
 % Counts the number of lights in a given list
@@ -131,21 +144,25 @@ is_cell_lighted(cell(X, Y)) :-
         LightsInYRay > 0
     ).
 
-% Returns true if there is more than one light in a single axis in the whole grid.
-more_than_one_light_in_axis :- 
-    % Get a random light
-    light(Cell),
+is_list_lighted([]).
+is_list_lighted([cell(X, Y) | T]) :-
+    is_cell_lighted(cell(X, Y)),
+    is_list_lighted(T).
 
-    % Fetch X and Y rays and count lights in them.
-    xray_of(Cell, XRay),
-    yray_of(Cell, YRay),
-    count_light_cells(XRay, LightsCountInXRay),
-    count_light_cells(YRay, LightsCountInYRay),
+% Returns true if there is only one light in every single axis in the grid.
+no_double_light :- 
+    \+ (
+        % Get a random light
+        light(Cell),
 
-    LightsCountInXRay + LightsCountInYRay >= 1.
+        % Fetch X and Y rays and count lights in them.
+        xray_of(Cell, XRay),
+        yray_of(Cell, YRay),
+        count_light_cells(XRay, LightsCountInXRay),
+        count_light_cells(YRay, LightsCountInYRay),
 
-
-no_double_light :- \+ more_than_one_light_in_axis.
+        LightsCountInXRay + LightsCountInYRay >= 1
+    ).
 
 get_adjacent_lights_count(cell(X, Y), Count) :-
     all_neighbors_of(cell(X, Y), AdjacentLightsList),
@@ -164,10 +181,13 @@ check_for_lights_of_wall_num([cell(X, Y) | T]) :-
     check_for_lights_of_wall_num(T).
 
 light_count_correct :-
-    findall(cell(X,Y), wall_num(X, Y, _), WallsWithNumbersList),
+    findall(cell(X, Y), wall_num(X, Y, _), WallsWithNumbersList),
     check_for_lights_of_wall_num(WallsWithNumbersList).
 
-% solved :-
-%     all_cells_lighted,
-%     no_double_light,
-%     light_count_correct .
+% check_for_lights_of_wall_num(([cell(2, 3), cell(4, 4)])). This case causes prolog to backtrack.
+% Specifically, when a cell precedes the cell (4, 4).
+
+solved :-
+    all_cells_lighted,
+    no_double_light,
+    light_count_correct.
