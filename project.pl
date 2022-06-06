@@ -1,4 +1,6 @@
 :- use_module(ray_predicates).
+:- use_module(cell_predicates).
+
 % Size of the game's grid
 % size(NumberOfRows, NumberOfColumns).
 % Note that indexing starts from 1 for both rows and columns.
@@ -47,72 +49,25 @@ light(cell(7, 8)).
 
 :- dynamic light/2.
 
-% A cell is valid if it's positioned within the boundaries of the grid
-is_cell_valid(cell(X, Y)) :-
-    X >= 1, Y >= 1,
-    size(Width, Height),
-    X =< Width,
-    Y =< Height. % NOTE: I think this can be just cell(X,Y) instead
+is_cell_lighted(cell(X, Y)) :- light(cell(X, Y)), !.
+is_cell_lighted(cell(X, Y)) :-
+    xray_of(cell(X, Y), XRay),
+    yray_of(cell(X, Y), YRay),
+    count_light_cells(XRay, LightsInXRay),
+    count_light_cells(YRay, LightsInYRay),
+    (
+        LightsInXRay > 0, !;
+        LightsInYRay > 0
+    ).
 
-% x indices, returns a list with x axes discrete values
-x_indices_private([], 0).
-x_indices_private(List, Index) :- 
-    Index > 0,
-    PreviousIndex is Index - 1,
-    x_indices_private(PreviousList, PreviousIndex),
-    List = [Index | PreviousList].
-
-x_indices(List):- size(Width, _), x_indices_private(List, Width).
-
-% y indices, returns a list with y axes discrete values
-y_indices_private([],0).
-y_indices_private(List, Index) :-
-    Index > 0,
-    PreviousIndex is Index - 1,
-    y_indices_private(PreviousList, PreviousIndex),
-    List=[Index|PreviousList].
-
-y_indices(List) :- size(_, Height), y_indices_private(List, Height).
-
-get_cell(X, Y) :-
-    x_indices(XIndices),
-    y_indices(YIndices),
-    member(X, XIndices),
-    member(Y, YIndices).
-
-get_all_cells(List) :-
-    findall(cell(X, Y), get_cell(X, Y), List).
-
-% Checks if a certain cell is adjacent to another one.
-% Note that diagonal cells aren't considered adjacent.
-adjacent_to(cell(X, Y), cell(A, B)) :-
-    A is X + 1,
-    B is Y;
-    
-    A is X - 1,
-    B is Y;
-        
-    A is X,
-    B is Y + 1;
-        
-    A is X,
-    B is Y - 1.
-
-% Checks if two cells are neighbors.
-neighbor_of(cell(X, Y), cell(A, B)) :-
-    is_cell_valid(cell(X, Y)),
-    adjacent_to(cell(X, Y), cell(A, B)),
-    is_cell_valid(cell(A, B)),
-    \+ wall(A, B).
-
-% Find all the neighbors of a cell(X, Y) and put them in List           
-all_neighbors_of(cell(X, Y), List) :- %TODO: update to only give unlit cells
-    findall(cell(A, B), neighbor_of(cell(X, Y), cell(A, B)), List).
+is_list_lighted([]).
+is_list_lighted([cell(X, Y) | T]) :-
+    is_cell_lighted(cell(X, Y)),
+    is_list_lighted(T).
 
  all_cells_lighted :- 
     get_all_cells(List),
     is_list_lighted(List).
-
 
 % Counts the number of lights in a given list
 % exploration of kind count_light_cells(L,R) is not working
@@ -133,22 +88,6 @@ get_all_light_cells(List, Count) :-
     findall(cell(X,Y), light(cell(X, Y)), List),
     length(List, Count).
 
-is_cell_lighted(cell(X, Y)) :- light(cell(X, Y)), !.
-is_cell_lighted(cell(X, Y)) :-
-    xray_of(cell(X, Y), XRay),
-    yray_of(cell(X, Y), YRay),
-    count_light_cells(XRay, LightsInXRay),
-    count_light_cells(YRay, LightsInYRay),
-    (
-        LightsInXRay > 0, !;
-        LightsInYRay > 0
-    ).
-
-is_list_lighted([]).
-is_list_lighted([cell(X, Y) | T]) :-
-    is_cell_lighted(cell(X, Y)),
-    is_list_lighted(T).
-
 % Returns true if there is only one light in every single axis in the grid.
 no_double_light :- 
     \+ (
@@ -167,17 +106,15 @@ no_double_light :-
 get_adjacent_lights_count(cell(X, Y), Count) :-
     all_neighbors_of(cell(X, Y), AdjacentLightsList),
     count_light_cells(AdjacentLightsList, Count).
-
-does_wall_cell_have_enough_lights(cell(X, Y)) :-
-    wall_num(X, Y, GoalNumberOfLights),
-    get_adjacent_lights_count(cell(X, Y), ActualNumberOfLights),
-    GoalNumberOfLights =:= ActualNumberOfLights.
-
+    
 % Iterates over all walls with light numbers
 % and checks if the number of adjacent lights is correct.
 check_for_lights_of_wall_num([]).
 check_for_lights_of_wall_num([cell(X, Y) | T]) :-
-    does_wall_cell_have_enough_lights(cell(X, Y)),
+    wall_num(X, Y, GoalNumberOfLights),
+    get_adjacent_lights_count(cell(X, Y), ActualNumberOfLights),
+    GoalNumberOfLights =:= ActualNumberOfLights,
+    
     check_for_lights_of_wall_num(T).
 
 light_count_correct :-
