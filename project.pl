@@ -86,7 +86,20 @@ count_light_cells__([H | T], Accumulator, Result) :-
 count_light_cells(List, Result) :- count_light_cells__(List, 0, Result).
 
 % Returns all the lights in L and their count in C
-get_all_light_cells(L,C):-findall(cell(X,Y),light(cell(X,Y)),L),length(L, C).
+get_all_light_cells(List, Count) :-
+    findall(cell(X,Y), light(cell(X, Y)), List),
+    length(List, Count).
+
+is_cell_lighted(cell(X, Y)) :-
+    xray_of(cell(X, Y), XRay),
+    yray_of(cell(X, Y), YRay),
+    count_light_cells(XRay, LightsInXRay),
+    count_light_cells(YRay, LightsInYRay),
+    (
+        LightsInXRay > 0;
+        LightsInYRay > 0
+    ).
+
 
 % is_cell_lighted(cell(X, Y)) :-
 %     approach 1: each time we store a new light bulb
