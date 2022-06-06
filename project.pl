@@ -1,4 +1,4 @@
-:- ensure_loaded(xy_ray).
+:- use_module(ray_predicates).
 % Size of the game's grid
 % size(NumberOfRows, NumberOfColumns).
 % Note that indexing starts from 1 for both rows and columns.

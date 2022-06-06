@@ -1,3 +1,5 @@
+:- module(ray_predicates, [xray_of/2, yray_of/2]).
+
 % Returns all valid cells to the left and the right
 xray_forward_of(cell(X,Y),cell(A,B)):-
     X1 is X+1,
