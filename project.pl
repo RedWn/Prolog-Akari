@@ -106,7 +106,7 @@ neighbor_of(cell(X, Y), cell(A, B)) :-
     \+ wall(A, B).
 
 % Find all the neighbors of a cell(X, Y) and put them in List           
-all_neighbors_of(cell(X, Y), List) :- 
+all_neighbors_of(cell(X, Y), List) :- %TODO: update to only give unlit cells
     findall(cell(A, B), neighbor_of(cell(X, Y), cell(A, B)), List).
 
  all_cells_lighted :- 
@@ -191,3 +191,27 @@ solved :-
     all_cells_lighted,
     no_double_light,
     light_count_correct.
+
+% the algorithm:
+
+% solve:-
+%     solved,findall(lights),print(lights);(
+%     fill_wall_with_equal_neighbors,
+%     solve
+%     );
+%     mark_unavailable_cells,
+%     light_unavailable_cells,
+%     light_up_singluar_cells.
+
+% get_wall_with_equal_neighbors:-
+%     find wall where wall_num == neighbors.length,
+%     assert all neighbors of wall as lights.
+
+% mark_unavailable_cells:-
+%     should follow the rules stated in the manifest but I am still to get a decent implementaion.
+
+% light_unavailable_cells:-
+%     get ray of the unavailable cells and fill any empty unlit cell
+
+% light_up_singluar_cells:-
+%     find every cell that has no neighbors and isnt a wall and assert it as light
