@@ -111,18 +111,14 @@ is_cell_lighted(cell(X, Y)) :-
         LightsInYRay > 0
     ).
 
+get_adjacent_lights_count(cell(X, Y), Count) :-
+    all_neighbors_of(cell(X,Y), AdjacentLightsList),
+    count_light_cells(AdjacentLightsList, Count).
 
-
-get_adjacent_lights_number(cell(X,Y),N):-
-    all_neighbors_of(cell(X,Y),ListOfNeighbors),
-    findall(cell(X1,Y1), light(cell(X1,Y1)), ListofLights),
-    intersection(ListOfNeighbors, ListofLights, List),
-    length(List, N).
-
-does_wall_cell_have_enough_lights(cell(X, Y)):-
-    wall_num(X, Y, NumberOfLights),
-    get_adjacent_lights_number(cell(X,Y),N1),
-    N =:= N1.
+does_wall_cell_have_enough_lights(cell(X, Y)) :-
+    wall_num(X, Y, GoalNumberOfLights),
+    get_adjacent_lights_count(cell(X, Y), ActualNumberOfLights),
+    GoalNumberOfLights =:= ActualNumberOfLights.
     
 
  all_cells_lighted(cell(X,Y)) :- % cell(1,1)
