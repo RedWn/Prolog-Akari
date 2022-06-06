@@ -100,24 +100,17 @@ get_all_light_cells(List, Count) :-
     findall(cell(X,Y), light(cell(X, Y)), List),
     length(List, Count).
 
+is_cell_lighted(cell(X, Y)) :- light(cell(X, Y)), !.
 is_cell_lighted(cell(X, Y)) :-
     xray_of(cell(X, Y), XRay),
     yray_of(cell(X, Y), YRay),
     count_light_cells(XRay, LightsInXRay),
     count_light_cells(YRay, LightsInYRay),
     (
-        LightsInXRay > 0;
+        LightsInXRay > 0, !;
         LightsInYRay > 0
     ).
 
-
-% is_cell_lighted(cell(X, Y)) :-
-%     approach 1: each time we store a new light bulb
-%     we indicate that cell(X, Y) is either lighted or not.
-
-%     approach 2: foreach light in the game, check both its
-%     x and y rays if they can light up the given cell.
-%     Don't forget that if the cell in itself is a light, then it's lighted
 
 
 get_adjacent_lights_number(cell(X,Y),N):-
