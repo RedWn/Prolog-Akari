@@ -49,6 +49,8 @@ light(cell(7, 8)).
 
 :- dynamic light/2.
 
+:- dynamic unavailable_cell/2.
+
 is_cell_lighted(cell(X, Y)) :- light(cell(X, Y)), !.
 is_cell_lighted(cell(X, Y)) :-
     xray_of(cell(X, Y), XRay),
@@ -137,8 +139,10 @@ solved :-
 %     solve
 %     );
 %     mark_unavailable_cells,
-%     light_unavailable_cells,
-%     light_up_singluar_cells.
+%     solve;
+%     light_up_singluar_cells,
+%     solve.
+
 
 % get_wall_with_equal_neighbors:-
 %     find wall where wall_num == neighbors.length,
@@ -147,8 +151,5 @@ solved :-
 % mark_unavailable_cells:-
 %     should follow the rules stated in the manifest but I am still to get a decent implementaion.
 
-% light_unavailable_cells:-
-%     get ray of the unavailable cells and fill any empty unlit cell
-
 % light_up_singluar_cells:-
-%     find every cell that has no neighbors and isnt a wall and assert it as light
+%     find every cell that has no neighbors and have no numbered and isnt a wall and assert it as light
