@@ -110,11 +110,6 @@ is_cell_lighted(cell(X, Y)) :-
 %     Don't forget that if the cell in itself is a light, then it's lighted
 
 
- % does_wall_cell_have_enough_lights(cell(X, Y)) :-
- %     wall_num(X, Y, NumberOfLights),
- %     get_all_adjacent_lights(List),
- %     List.length == NumberOfLights.
-
 get_adjacent_lights_number(cell(X,Y),N):-
     all_neighbors_of(cell(X,Y),ListOfNeighbors),
     findall(cell(X,Y), light(X,Y), ListofLights),
@@ -122,7 +117,7 @@ get_adjacent_lights_number(cell(X,Y),N):-
     length(List, N).
 
 does_wall_cell_have_enough_lights(cell(X, Y)):-
-    wall_num(X,Y,N),
+    wall_num(X, Y, NumberOfLights),
     get_adjacent_lights_number(cell(X,Y),N1),
     N =:= N1.
     
