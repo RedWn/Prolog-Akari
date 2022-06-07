@@ -129,19 +129,21 @@ solved :-
      wall_num(X, Y, GoalNumberOfLights),
      all_neighbors_of(cell(X, Y), List),
      length(List,Count),
-     L1 is Count,
-      GoalNumberOfLights== L1 -> 
-    light([cell(X,Y)|List]).
+      GoalNumberOfLights==Count,
+    light_list(List).
 
-
+    light_list([]).
+    light_list([cell(X,Y)|List]):-
+    light(cell(X,Y)),
+    light_list(List).
 
     % assert all neighbors of wall as lights.
 
 
 
-%     nfirst(N, _, Lnew) :- N =< 0, Lnew = [].
+%nfirst(N, _, Lnew) :- N =< 0, Lnew = [].
 %nfirst(_, [], []).
-%nfirst(N, [X|Y], [X|Y1]) :- N1 is N - 1, nfirst(N1, Y, Y1).
+%nfirst(N, [cell(X,Y)|List], [cell(X,Y)|List2]) :- N1 is N - 1, nfirst(N1, List, List2).
 
 %printList([]):-!.
 %printList([H|T]):-printList(T), write(H), write('\n').
