@@ -104,11 +104,8 @@ light_up_list([cell(X, Y) | T]) :-
 % mark_unavailable_cells:-
 %     should follow the rules stated in the manifest but I am still to get a decent implementaion.
 
-% Marks a list's members as unavailable (LIGHTS EXCLUDED)
+% Marks a list's members as unavailable (LIGHTS INCLUDED)
 mark_list_cells_unavailable([]).
-% Remove this Predicate to include LIGHTS
-mark_list_cells_unavailable([H|T]) :- H = cell(X, Y),light(cell(X, Y)),
-                                    mark_list_cells_unavailable(T),!.
 mark_list_cells_unavailable([H|T]) :- H = cell(X, Y),
                                     assert(unavailable(cell(X, Y))),
                                     mark_list_cells_unavailable(T).
