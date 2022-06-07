@@ -29,22 +29,24 @@ wall_num(7, 6, 0).
 wall_num(2, 7, 3).
 wall_num(6, 8, 1).
 % Light Cells (for testing purposes)
-light(cell(6, 1)).
-light(cell(2, 2)).
-light(cell(8, 2)).
-light(cell(1, 3)).
-light(cell(4, 3)).
-light(cell(3, 4)).
-light(cell(5, 4)).
-light(cell(4, 5)).
-light(cell(6, 5)).
-light(cell(2, 6)).
-light(cell(1, 7)).
-light(cell(8, 7)).
-light(cell(2, 8)).
-light(cell(7, 8)).
-:- dynamic light/2.
-:- dynamic unavailable_cell/2.
+% light(cell(6, 1)).
+% light(cell(2, 2)).
+% light(cell(8, 2)).
+% light(cell(1, 3)).
+% light(cell(4, 3)).
+% light(cell(3, 4)).
+% light(cell(5, 4)).
+% light(cell(4, 5)).
+% light(cell(6, 5)).
+% light(cell(2, 6)).
+% light(cell(1, 7)).
+% light(cell(8, 7)).
+% light(cell(2, 8)).
+% light(cell(7, 8)).
+
+:- dynamic light/1.
+
+:- dynamic unavailable_cell/1.
 
 
 is_cell_lighted(cell(X, Y)) :- light(cell(X, Y)), !.
@@ -149,8 +151,8 @@ solved :-
 %printList([H|T]):-printList(T), write(H), write('\n').
 % mark_unavailable_cells:-
 %     should follow the rules stated in the manifest but I am still to get a decent implementaion.
-% light_up_singluar_cells:-
-%     find every cell that has no neighbors and have no numbered and isnt a wall and assert it as light
+
+
 % Lit arg controls if the normal tiles that are lit should be displayed lit or not
 print_grid_cell(cell(X,Y),Lit):-(wall_num(X,Y,V),write(V),write(' '),!);
 							(wall(X,Y),write(#),write(' '),!);
@@ -177,3 +179,32 @@ print_grid_lit_(X, Y) :- Y > 0, print_grid_cell(cell(X, Y), 1),
 						X0 is X + 1, print_grid_lit_(X0, Y).
 % Prints the grid with lighting up normal tiles
 print_grid_lit :- size(_, H), print_grid_lit_(1, H).
+
+no_wall_num_neighbor(cell(X,Y)):-
+    all_neighbors_of_with_walls(cell(X,Y),L1),
+    findall(cell(A,B),wall_num(A,B,_),L2),
+    intersection(L1, L2, L3),
+    length(L3,N),
+    N is 0.
+
+find_all_singulars([],[_]).
+
+find_all_singulars([cell(A,B)|T],[cell(X,Y)|T1]):-
+    xray_of(cell(A,B),Xlist),
+    yray_of(cell(A,B),Ylist),
+    length(Xlist,N1),
+    length(Ylist,N2),
+    ((N1 is 0, N2 is 0);((N1 is 0; N2 is 0),no_wall_num_neighbor(cell(A,B)))) -> X is A,Y is B,find_all_singulars(T,T1); find_all_singulars(T,[cell(X,Y)|T1]).
+
+add_lights([]).
+
+add_lights([cell(X,Y)|T]):-
+    assert(light(cell(X,Y))),
+    add_lights(T).
+
+light_up_singluar_cells:-
+    % get_all_available_cells(Grid),
+    get_all_cells(Grid),
+    find_all_singulars(Grid,List),
+    write(List).
+    % add_lights(List).
