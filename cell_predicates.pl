@@ -2,10 +2,13 @@
     is_cell_valid/1,
     x_indices_of_board/1,
     get_all_cells/1,
+    get_all_available_cells/1,
 
     adjacent_to/2,
     neighbor_of/2,
-    all_neighbors_of/2
+    all_neighbors_of/2,
+    neighbor_of_with_walls/2,
+    all_neighbors_of_with_walls/2
 ]).
 
 % A cell is valid if it's positioned within the boundaries of the grid
@@ -44,6 +47,11 @@ get_cell(X, Y) :-
 get_all_cells(List) :-
     findall(cell(X, Y), get_cell(X, Y), List).
 
+get_all_available_cells(List) :-
+    findall(cell(X, Y), get_cell(X, Y), All),
+    findall(cell(X, Y), unavailable_cell(X, Y), Unavailable),
+    subtract(All, Unavailable, List).
+
 % Checks if a certain cell is adjacent to another one.
 % Note that diagonal cells aren't considered adjacent.
 adjacent_to(cell(X, Y), cell(A, B)) :-
@@ -69,3 +77,13 @@ neighbor_of(cell(X, Y), cell(A, B)) :-
 % Find all the neighbors of a cell(X, Y) and put them in List           
 all_neighbors_of(cell(X, Y), List) :- %TODO: update to only give unlit cells
     findall(cell(A, B), neighbor_of(cell(X, Y), cell(A, B)), List).
+
+% Checks if two cells are neighbors.
+neighbor_of_with_walls(cell(X, Y), cell(A, B)) :-
+    is_cell_valid(cell(X, Y)),
+    adjacent_to(cell(X, Y), cell(A, B)),
+    is_cell_valid(cell(A, B)).
+
+% Find all the neighbors of a cell(X, Y) and put them in List           
+all_neighbors_of_with_walls(cell(X, Y), List) :- %TODO: update to only give unlit cells
+    findall(cell(A, B), neighbor_of_with_walls(cell(X, Y), cell(A, B)), List).

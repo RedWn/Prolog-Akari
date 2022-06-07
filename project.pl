@@ -99,6 +99,6 @@ solved :-
 
 % mark_unavailable_cells:-
 %     should follow the rules stated in the manifest but I am still to get a decent implementaion.
-% light_up_singluar_cells:-
-%     find every cell that has no neighbors and have no numbered and isnt a wall and assert it as light
+
+
 % Lit arg controls if the normal tiles that are lit should be displayed lit or not
