@@ -103,3 +103,16 @@ light_up_list([cell(X, Y) | T]) :-
 
 % mark_unavailable_cells:-
 %     should follow the rules stated in the manifest but I am still to get a decent implementaion.
+
+% Marks a list's members as unavailable
+mark_list_cells_unavailable([]).
+mark_list_cells_unavailable([H|T]) :- H = cell(X, Y),
+                                    assert(unavailable(cell(X, Y))),
+                                    mark_list_cells_unavailable(T).
+
+% Marks walls with number zero neightbours as unavailable
+mark_zeros_neighbours_unavailable_ :- wall_num(X, Y, 0),
+                                    all_neighbors_of(cell(X, Y), N),
+                                    mark_list_cells_unavailable(N).
+
+mark_zeros_neighbours_unavailable :- findall(_, mark_zeros_neighbours_unavailable_, _).
