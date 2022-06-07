@@ -8,7 +8,7 @@
 % Size of the game's grid
 % size(NumberOfRows, NumberOfColumns).
 % Note that indexing starts from 1 for both rows and columns.
-size(8, 8).
+size(8,8).
 
 % These cells are walls without numbers
 % wall(XPosition, YPosition).

@@ -1,50 +1,10 @@
 :- use_module(kb).
 :- use_module(ray_predicates).
 :- use_module(cell_predicates).
+:- use_module(print_utilities).
 % Size of the game's grid
 % size(NumberOfRows, NumberOfColumns).
 % Note that indexing starts from 1 for both rows and columns.
-size(8, 8).
-% These cells are walls without numbers
-% wall(XPosition, YPosition).
-wall(3, 1).
-wall(6, 2).
-wall(7, 2).
-wall(2, 3).
-wall(4, 4).
-wall(8, 4).
-wall(1, 5).
-wall(5, 5).
-wall(7, 6).
-wall(2, 7).
-wall(3, 7).
-wall(6, 8).
-% These cells are walls that contain numbers.
-% wall_num(XPosition, YPosition, NumberOfAdjacentLights).
-wall_num(6, 2, 1).
-wall_num(2, 3, 2).
-wall_num(4, 4, 4).
-wall_num(8, 4, 0).
-wall_num(7, 6, 0).
-wall_num(2, 7, 3).
-wall_num(6, 8, 1).
-% Light Cells (for testing purposes)
-light(cell(6, 1)).
-light(cell(2, 2)).
-light(cell(8, 2)).
-light(cell(1, 3)).
-light(cell(4, 3)).
-light(cell(3, 4)).
-light(cell(5, 4)).
-light(cell(4, 5)).
-light(cell(6, 5)).
-light(cell(2, 6)).
-light(cell(1, 7)).
-light(cell(8, 7)).
-light(cell(2, 8)).
-light(cell(7, 8)).
-:- dynamic light/2.
-:- dynamic unavailable_cell/2.
 
 
 is_cell_lighted(cell(X, Y)) :- light(cell(X, Y)), !.
@@ -130,50 +90,15 @@ solved :-
      all_neighbors_of(cell(X, Y), List),
      length(List,Count),
       GoalNumberOfLights==Count,
-    light_list(List).
+    light_up_list(List).
 
     light_list([]).
     light_list([cell(X,Y)|List]):-
     light(cell(X,Y)),
     light_list(List).
 
-    % assert all neighbors of wall as lights.
-
-
-
-%nfirst(N, _, Lnew) :- N =< 0, Lnew = [].
-%nfirst(_, [], []).
-%nfirst(N, [cell(X,Y)|List], [cell(X,Y)|List2]) :- N1 is N - 1, nfirst(N1, List, List2).
-
-%printList([]):-!.
-%printList([H|T]):-printList(T), write(H), write('\n').
 % mark_unavailable_cells:-
 %     should follow the rules stated in the manifest but I am still to get a decent implementaion.
 % light_up_singluar_cells:-
 %     find every cell that has no neighbors and have no numbered and isnt a wall and assert it as light
 % Lit arg controls if the normal tiles that are lit should be displayed lit or not
-print_grid_cell(cell(X,Y),Lit):-(wall_num(X,Y,V),write(V),write(' '),!);
-							(wall(X,Y),write(#),write(' '),!);
-							(light(cell(X,Y)),write(*),write(' '),!);
-							(is_cell_valid(cell(X,Y)),Lit=0,write(.),write(' '),!);
-							(is_cell_valid(cell(X,Y)),Lit=1,is_cell_lighted(cell(X,Y)),write(+),write(' '),!);
-							(is_cell_valid(cell(X,Y)),Lit=1,\+ is_cell_lighted(cell(X,Y)),write(.),write(' '),!).
-							
-% print_grid helpers
-print_grid_(X, Y) :- size(W, _), X > W, X0 is 1,
-					Y0 is Y - 1, nl, nl,
-					print_grid_(X0, Y0).
-					
-print_grid_(X, Y) :- Y > 0, print_grid_cell(cell(X, Y), 0),
-					X0 is X + 1, print_grid_(X0, Y).
-% Prints the grid without lighting up normal tiles
-print_grid :- size(_, H), print_grid_(1, H).
-% print_grid_lit helpers
-print_grid_lit_(X, Y) :- size(W, _), X > W, X0 is 1,
-						Y0 is Y - 1, nl, nl,
-						print_grid_lit_(X0, Y0).
-						
-print_grid_lit_(X, Y) :- Y > 0, print_grid_cell(cell(X, Y), 1),
-						X0 is X + 1, print_grid_lit_(X0, Y).
-% Prints the grid with lighting up normal tiles
-print_grid_lit :- size(_, H), print_grid_lit_(1, H).
