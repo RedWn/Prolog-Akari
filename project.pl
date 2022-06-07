@@ -1,7 +1,6 @@
 :- use_module(kb).
 :- use_module(ray_predicates).
 :- use_module(cell_predicates).
-<<<<<<< HEAD
 % Size of the game's grid
 % size(NumberOfRows, NumberOfColumns).
 % Note that indexing starts from 1 for both rows and columns.
@@ -47,8 +46,6 @@ light(cell(7, 8)).
 :- dynamic light/2.
 :- dynamic unavailable_cell/2.
 
-=======
->>>>>>> 6b1c4a891ebfd1ebb43f85478040829181341ec5
 
 is_cell_lighted(cell(X, Y)) :- light(cell(X, Y)), !.
 is_cell_lighted(cell(X, Y)) :-
