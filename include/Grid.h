@@ -6,7 +6,7 @@ class Grid{
     private:
         Grid();
         std::vector<Tile> tiles;
-        int tileSideSize;
+        float tileSideSize;
         int horizontalTilesCount, verticalTilesCount;
 
     public:
