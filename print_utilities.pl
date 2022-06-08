@@ -1,6 +1,7 @@
 :- module(print_utilities, [
     print_grid/0,
-    print_grid_lit/0
+    print_grid_lit/0,
+    print_grid_lit_/2
 ]).
 
 % Lit arg controls if the normal tiles that are lit should be displayed lit or not
