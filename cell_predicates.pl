@@ -49,7 +49,7 @@ get_all_cells(List) :-
 
 get_all_available_cells(List) :-
     findall(cell(X, Y), get_cell(X, Y), All),
-    findall(cell(X, Y), unavailable_cell(X, Y), Unavailable),
+    findall(cell(X, Y), unavailable(cell(X, Y)), Unavailable),
     subtract(All, Unavailable, List).
 
 % Checks if a certain cell is adjacent to another one.
