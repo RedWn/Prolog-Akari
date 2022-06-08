@@ -1,6 +1,8 @@
 #include <Grid.h>
 #include <SWI-cpp.h>
 #include <SFML/Graphics/Image.hpp>
+#include<fstream>
+using namespace std;
 using namespace gl;
 using namespace sf;
 Grid::Grid() {}
@@ -52,5 +54,72 @@ void Grid::init()
                      GL_RGBA, GL_UNSIGNED_BYTE, images[i].getPixelsPtr());
     }
     glBindTexture(GL_TEXTURE_2D, 0);
+    shaderProgram = loadShaderProgram("Assets/VertexShader.vs", "Assets/FragmentShader.fs");
     assert(glGetError() == 0);
+}
+
+
+GLuint Grid::loadShaderProgram(const char *vertexShaderPath, const char *fragmentShaderPath)
+{
+    GLuint program;
+    vector<char> vertexShaderCode = readBinFile(vertexShaderPath);
+    vector<char> fragmentShaderCode = readBinFile(fragmentShaderPath);
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    GLint vertexShaderSize = vertexShaderCode.size();
+    GLint fragmentShaderSize = fragmentShaderCode.size();
+    char *pVertexShaderCode = vertexShaderCode.data();
+    char *pFragmentShaderCode = fragmentShaderCode.data();
+    glShaderSource(vertexShader, 1, &pVertexShaderCode, &vertexShaderSize);
+    glShaderSource(fragmentShader, 1, &pFragmentShaderCode, &fragmentShaderSize);
+    glCompileShader(vertexShader);
+    glCompileShader(fragmentShader);
+#ifdef DEBUG
+    GLint infoLogLen;
+    glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &infoLogLen);
+    vector<char> infoLog(infoLogLen);
+    glGetShaderInfoLog(vertexShader, infoLog.size(), nullptr, infoLog.data());
+    infoLog.push_back('\0');
+    printf(infoLog.data());
+    infoLog.resize(0);
+    glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &infoLogLen);
+    infoLog.resize(infoLogLen);
+    glGetShaderInfoLog(fragmentShader, infoLog.size(), nullptr, infoLog.data());
+    infoLog.push_back('\0');
+    printf(infoLog.data());
+    infoLog.resize(0);
+#endif
+    program = glCreateProgram();
+    glAttachShader(program, vertexShader);
+    glAttachShader(program, fragmentShader);
+    glLinkProgram(program);
+#ifdef DEBUG
+    glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLen);
+    infoLog.resize(infoLogLen);
+    glGetProgramInfoLog(program, infoLogLen, nullptr, infoLog.data());
+    infoLog.push_back('\0');
+    printf(infoLog.data());
+#endif
+    glDetachShader(program, vertexShader);
+    glDetachShader(program, fragmentShader);
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    assert(glGetError() == 0);
+    return program;
+}
+
+vector<char> Grid::readBinFile(const char* path){
+    vector<char> data;
+    fstream fileStream(path, ios::binary | ios::ate | ios::in);
+    if(!fileStream.is_open()){
+        printf("Failed to open file at %s", path);
+        assert(0);
+    }
+    data.resize(fileStream.tellg());
+    fileStream.seekg(0, ios::beg);
+    fileStream.read(data.data(), data.size());
+    fileStream.flush();
+    fileStream.close();
+    return data;
 }

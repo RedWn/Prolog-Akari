@@ -6,4 +6,6 @@ sfmlWindow=dependency('sfml-window')
 sfmlGraphics=dependency('sfml-graphics')
 glbinding=dependency('glbinding')
 swipl=dependency('swipl')
-executable('akari',sources,include_directories:[include_dir],dependencies:[sfmlWindow,glbinding,swipl,sfmlGraphics])
+executable('akari',sources,include_directories:[include_dir],
+            dependencies:[sfmlWindow,glbinding,swipl,sfmlGraphics],
+            cpp_args:['-DDEBUG'])

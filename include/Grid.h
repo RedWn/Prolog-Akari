@@ -6,8 +6,11 @@
 class Grid{
     private:
         Grid();
+        std::vector<char> readBinFile(const char *path);
+        gl::GLuint loadShaderProgram(const char *vertexShaderPath, const char *fragmentShaderPath);
         std::vector<Tile> tiles;
         gl::GLuint textures[Tile::NUM_TYPES];
+        gl::GLuint shaderProgram;
         float tileSideSize;
         int horizontalTilesCount, verticalTilesCount;
 
