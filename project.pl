@@ -1,9 +1,10 @@
 :- use_module(kb).
 :- use_module(ray_predicates).
 :- use_module(cell_predicates).
+:- use_module(print_utilities).
 
-is_cell_lighted(cell(X, Y)) :- light(cell(X, Y)), !.
-is_cell_lighted(cell(X, Y)) :-
+is_cell_lit(cell(X, Y)) :- light(cell(X, Y)), !.
+is_cell_lit(cell(X, Y)) :-
     xray_of(cell(X, Y), XRay),
     yray_of(cell(X, Y), YRay),
     count_light_cells(XRay, LightsInXRay),
@@ -13,30 +14,28 @@ is_cell_lighted(cell(X, Y)) :-
         LightsInYRay > 0
     ).
 
-is_list_lighted([]).
-is_list_lighted([cell(X, Y) | T]) :-
-    is_cell_lighted(cell(X, Y)),
-    is_list_lighted(T).
+is_list_lit([]).
+is_list_lit([cell(X, Y) | T]) :-
+    is_cell_lit(cell(X, Y)),
+    is_list_lit(T).
 
- all_cells_lighted :- 
+all_cells_lit :- 
     get_all_cells(List),
-    is_list_lighted(List).
+    is_list_lit(List).
 
-% Counts the number of lights in a given list
-% exploration of kind count_light_cells(L,R) is not working
+% Counts the number of lights in a given list.
+% Exploration of kind count_light_cells(List, Result) is not working.
 count_light_cells__([], Accumulator, Accumulator).
 count_light_cells__([H | T], Accumulator, Result) :-
     (
         light(H) -> 
             NewAccumulator is Accumulator + 1,
             count_light_cells__(T, NewAccumulator, Result);
-
             count_light_cells__(T, Accumulator, Result)
     ).
-
 count_light_cells(List, Result) :- count_light_cells__(List, 0, Result).
 
-% Returns all the lights in List and their count in Count
+% Returns all the light cells and their count.
 get_all_light_cells(List, Count) :-
     findall(cell(X,Y), light(cell(X, Y)), List),
     length(List, Count).
@@ -46,13 +45,11 @@ no_double_light :-
     \+ (
         % Get a random light
         light(Cell),
-
         % Fetch X and Y rays and count lights in them.
         xray_of(Cell, XRay),
         yray_of(Cell, YRay),
         count_light_cells(XRay, LightsCountInXRay),
         count_light_cells(YRay, LightsCountInYRay),
-
         LightsCountInXRay + LightsCountInYRay >= 1
     ).
 
@@ -70,68 +67,138 @@ check_for_lights_of_wall_num([cell(X, Y) | T]) :-
     
     check_for_lights_of_wall_num(T).
 
+% check_for_lights_of_wall_num(([cell(2, 3), cell(4, 4)])). This case causes prolog to backtrack.
+% Specifically, when a cell precedes the cell (4, 4).
 light_count_correct :-
     findall(cell(X, Y), wall_num(X, Y, _), WallsWithNumbersList),
     check_for_lights_of_wall_num(WallsWithNumbersList).
 
-% check_for_lights_of_wall_num(([cell(2, 3), cell(4, 4)])). This case causes prolog to backtrack.
-% Specifically, when a cell precedes the cell (4, 4).
-
 solved :-
-    all_cells_lighted,
+    all_cells_lit,
     no_double_light,
     light_count_correct.
 
 % the algorithm:
 
-% solve:-
-%     solved,findall(lights),print(lights);(
-%     fill_wall_with_equal_neighbors,
-%     solve
-%     );
-%     mark_unavailable_cells,
-%     solve;
-%     light_up_singluar_cells,
-%     solve.
+solve:-
+    solved,
+    \+ print_grid_lit, nl,
+    write("HAWKS TEAM IS STRONG"), !;
+    (
+        find_wall_num_that_have_equal_neighbors(List),
+        length(List, N),
+        N > 0,
+        light_up_neighbors(List),
+        solve
+    );
+    mark_unavailable_cells,
+    light_up_singluar_cells,
+    solve.
 
+ray_contain_only_unavailable([]).
+ray_contain_only_unavailable([cell(A,B)|T]):-
+    findall(cell(X,Y),unavailable(cell(X,Y)),Unavailables),
+    member(cell(A,B), Unavailables),
+    ray_contain_only_unavailable(T).
+    
 
-% get_wall_with_equal_neighbors:-
-%     find wall where wall_num == neighbors.length,
-%     assert all neighbors of wall as lights.
+find_all_singulars([],[]).
 
-% mark_unavailable_cells:-
-%     should follow the rules stated in the manifest but I am still to get a decent implementaion.
+find_all_singulars([cell(A,B)|T],Ans):-
+    xray_of(cell(A,B),Xlist),
+    yray_of(cell(A,B),Ylist),
+    findall(cell(C,D),lit(cell(C,D)),List),
+    subtract(Xlist, List, Xlist2),
+    subtract(Ylist, List, Ylist2),
+    length(Xlist2,N1),
+    length(Ylist2,N2),
+    \+((N1 is 0, N2 is 0);((N2 =\= 0, ray_contain_only_unavailable(Ylist2);
+    N1 =\= 0, ray_contain_only_unavailable(Xlist2)))),find_all_singulars(T,Ans),!.
 
-% light_up_singluar_cells:-
-%     find every cell that has no neighbors and have no numbered and isnt a wall and assert it as light
+find_all_singulars([cell(A,B)|T],[cell(X,Y)|T1]):-
+    X is A,Y is B,
+    find_all_singulars(T,T1).
 
-% Lit arg controls if the normal tiles that are lit should be displayed lit or not
-print_grid_cell(cell(X,Y),Lit):-(wall_num(X,Y,V),write(V),write(' '),!);
-							(wall(X,Y),write(#),write(' '),!);
-							(light(cell(X,Y)),write(*),write(' '),!);
-							(is_cell_valid(cell(X,Y)),Lit=0,write(.),write(' '),!);
-							(is_cell_valid(cell(X,Y)),Lit=1,is_cell_lighted(cell(X,Y)),write(+),write(' '),!);
-							(is_cell_valid(cell(X,Y)),Lit=1,\+ is_cell_lighted(cell(X,Y)),write(.),write(' '),!).
-							
-% print_grid helpers
-print_grid_(X, Y) :- size(W, _), X > W, X0 is 1,
-					Y0 is Y - 1, nl, nl,
-					print_grid_(X0, Y0).
-					
-print_grid_(X, Y) :- Y > 0, print_grid_cell(cell(X, Y), 0),
-					X0 is X + 1, print_grid_(X0, Y).
+mark_list_as_lit([]).
+mark_list_as_lit([cell(X, Y) | T]) :-
+    assert(lit(cell(X, Y))),
+    mark_list_as_lit(T).
 
-% Prints the grid without lighting up normal tiles
-print_grid :- size(_, H), print_grid_(1, H).
+% Places a light in cell(X, Y) and marks it as lit.
+% It also marks the x and y rays of the cell as lit.
+add_light(cell(X, Y)):-
+    assert(light(cell(X, Y))),
+    assert(lit(cell(X, Y))),
+    xray_of(cell(X, Y), Xlist),
+    yray_of(cell(X, Y), Ylist),
+    mark_list_as_lit(Xlist),
+    mark_list_as_lit(Ylist).
 
+light_up_list([]).
+light_up_list([cell(X, Y) | T]) :-
+    \+lit(cell(X,Y)),
+    add_light(cell(X,Y)),
+    light_up_list(T);
+    light_up_list(T).
 
-% print_grid_lit helpers
-print_grid_lit_(X, Y) :- size(W, _), X > W, X0 is 1,
-						Y0 is Y - 1, nl, nl,
-						print_grid_lit_(X0, Y0).
+light_up_singluar_cells:-
+    get_all_available_cells(Grid),
+    find_all_singulars(Grid,List),
+    light_up_list(List).
+
+light_up_neighbors([]).
+light_up_neighbors([cell(X, Y) | T]) :-
+    all_neighbors_of(cell(X, Y), List),
+    light_up_list(List),
+    light_up_neighbors(T).
+
+% Finds walls with numbers that have an equal number of neighbors
+% and make sure those neighbors are unlit.
+find_wall_num_that_have_equal_neighbors(List) :-
+    findall(cell(X, Y), (
+        wall_num(X, Y, GoalNumberOfLights),
+        all_neighbors_of(cell(X, Y), NeighborsList),
+        findall(cell(A,B),lit(cell(A,B)),Litlist),
+        subtract(NeighborsList, Litlist, FinalList),
+        length(FinalList, NumberOfNeighbors),
+        GoalNumberOfLights  =:= NumberOfNeighbors,
+
+        \+ is_list_lit(NeighborsList)
+
+    ), List).
+    
+% Marks a list's members as unavailable (LIGHTS INCLUDED)
+mark_list_cells_unavailable([]).
+mark_list_cells_unavailable([H|T]) :- H = cell(X, Y),
+                                    assert(unavailable(cell(X, Y))),
+                                    mark_list_cells_unavailable(T).
+
+% Marks satesfied walls neighbours as unavailable (Zeroed walls included)
+mark_satesfied_neighbours_as_unavailable_ :- wall_num(X, Y, _),
+                                        check_for_lights_of_wall_num([cell(X, Y)]),
+                                        all_neighbors_of(cell(X, Y), N),
+                                        mark_list_cells_unavailable(N).
+
+mark_satesfied_neighbours_as_unavailable:-findall(_, mark_satesfied_neighbours_as_unavailable_, _).         
+
+% Checks if a cell has its value+1 available neighbour
+wall_with_N_1_available_neighbours(cell(X, Y)) :- wall_num(X, Y, Z),
+												get_adjacent_lights_count(cell(X, Y), LightsCount),
+												all_neighbors_of(cell(X, Y), N),
+												length(N, NCount),
+												NCount - LightsCount =:= Z + 1.
+
+% Marks the cells that satesify the condition in algor. rules as unavailable								
+mark_diag_as_unavailable_ :- wall_with_N_1_available_neighbours(cell(X, Y)),
+						diag_neightbour_of(cell(X, Y),cell(A, B)),
+						all_neighbors_of_without_lights(cell(X, Y), N0),
+						all_neighbors_of(cell(A, B), N1),
+						intersection(N0, N1, N2),
+						length(N2, L),
+						L =:= 2,
+						assert(unavailable(cell(A, B))).
 						
-print_grid_lit_(X, Y) :- Y > 0, print_grid_cell(cell(X, Y), 1),
-						X0 is X + 1, print_grid_lit_(X0, Y).
+mark_diag_as_unavailable :- findall(_, mark_diag_as_unavailable_, _). % TODO QA ME HARDER
 
-% Prints the grid with lighting up normal tiles
-print_grid_lit :- size(_, H), print_grid_lit_(1, H).
+mark_unavailable_cells :- mark_diag_as_unavailable,
+                        mark_satesfied_neighbours_as_unavailable. % TODO QA ME TOO SENPAI ^-*
