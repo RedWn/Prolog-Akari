@@ -35,7 +35,11 @@ void Grid::init()
     Image images[Tile::NUM_TYPES];
     images[Tile::LIGHT].loadFromFile("");    // TODO
     images[Tile::WALL].loadFromFile("");     // TODO
-    images[Tile::NUM_WALL].loadFromFile(""); // TODO
+    images[Tile::WALL_0].loadFromFile("");   // TODO
+    images[Tile::WALL_1].loadFromFile("");   // TODO
+    images[Tile::WALL_2].loadFromFile("");   // TODO
+    images[Tile::WALL_3].loadFromFile("");   // TODO
+    images[Tile::WALL_4].loadFromFile("");   // TODO
     images[Tile::VOID].loadFromFile("");     // TODO
     images[Tile::LIT_VOID].loadFromFile(""); // TODO
     for (int i = 0; i < Tile::NUM_TYPES; ++i)
