@@ -97,6 +97,7 @@ neighbor_of_with_walls(cell(X, Y), cell(A, B)) :-
 all_neighbors_of_with_walls(cell(X, Y), List) :- %TODO: update to only give unlit cells
     findall(cell(A, B), neighbor_of_with_walls(cell(X, Y), cell(A, B)), List).
 
+% Checks if 2nd cell is on the diag of the 1st
 diag_to(cell(X, Y), cell(A, B)) :-
     A is X + 1,
     B is Y + 1;
@@ -109,16 +110,19 @@ diag_to(cell(X, Y), cell(A, B)) :-
         
     A is X - 1,
     B is Y + 1.
-								
+
+% Checks if the two cells are on a diagonal
 diag_neightbour_of(cell(X, Y), cell(A, B)) :-
     is_cell_valid(cell(X, Y)),
     diag_to(cell(X, Y), cell(A, B)),
     is_cell_valid(cell(A, B)),
     \+ wall(A, B).				
 
+% Find all diagonal related cells and put them in List
 all_diag_neighbors_of(cell(X, Y), List) :- 
     findall(cell(A, B), diag_neightbour_of(cell(X, Y), cell(A, B)), List).
-                                            
+
+% Same as checking neighbours, excluding light cells (NOT LIT)           
 neighbor_of_without_lights(cell(X, Y), cell(A, B)) :-
     is_cell_valid(cell(X, Y)),
     adjacent_to(cell(X, Y), cell(A, B)),
@@ -126,5 +130,6 @@ neighbor_of_without_lights(cell(X, Y), cell(A, B)) :-
     \+ wall(A, B),
     \+ light(cell(A, B)).
     
+% Same as finding all neighbors, excluding light cells (NOT LIT)
 all_neighbors_of_without_lights(cell(X, Y), List) :- 
     findall(cell(A, B), neighbor_of_without_lights(cell(X, Y), cell(A, B)), List).
