@@ -55,7 +55,11 @@ get_all_cells(List) :-
 get_all_available_cells(List) :-
     findall(cell(X, Y), get_cell(X, Y), All),
     findall(cell(X, Y), unavailable(cell(X, Y)), Unavailable),
-    subtract(All, Unavailable, List).
+    findall(cell(X, Y), wall(X, Y), Wall),
+    findall(cell(X, Y), lit(cell(X, Y)), Lit),
+    subtract(All, Unavailable, List1),
+    subtract(List1, Lit, List2),
+    subtract(List2, Wall, List).
 
 % Checks if a certain cell is adjacent to another one.
 % Note that diagonal cells aren't considered adjacent.

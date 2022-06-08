@@ -89,6 +89,54 @@ solved :-
 %     light_up_singluar_cells,
 %     solve.
 
+ray_contain_only_unavailable([]).
+ray_contain_only_unavailable([cell(A,B)|T]):-
+    findall(cell(X,Y),unavailable(cell(X,Y)),Unavailables),
+    member(cell(A,B), Unavailables),
+    ray_contain_only_unavailable(T).
+    
+
+find_all_singulars([],[]).
+
+find_all_singulars([cell(A,B)|T],Ans):-
+    xray_of(cell(A,B),Xlist),
+    yray_of(cell(A,B),Ylist),
+    findall(cell(C,D),lit(cell(C,D)),List),
+    subtract(Xlist, List, Xlist2),
+    subtract(Ylist, List, Ylist2),
+    length(Xlist2,N1),
+    length(Ylist2,N2),
+    \+((N1 is 0, N2 is 0);((N1 is 0,ray_contain_only_unavailable(Ylist2); N2 is 0,ray_contain_only_unavailable(Xlist2)))),find_all_singulars(T,Ans).
+
+find_all_singulars([cell(A,B)|T],[cell(X,Y)|T1]):-
+    X is A,Y is B,
+    find_all_singulars(T,T1).
+
+enlight([]).
+
+enlight([cell(X,Y)|T]):-
+    assert(lit(cell(X,Y))),
+    enlight(T).
+
+add_light(cell(X,Y)):-
+    assert(light(cell(X,Y))),
+    assert(lit(cell(X,Y))),
+    xray_of(cell(X,Y),Xlist),
+    enlight(Xlist),
+    yray_of(cell(X,Y),Ylist),
+    enlight(Ylist).
+
+add_lights([]).
+
+add_lights([cell(X,Y)|T]):-
+    add_light(cell(X,Y)),
+    add_lights(T).
+
+light_up_singluar_cells:-
+    get_all_available_cells(Grid),
+    find_all_singulars(Grid,List),
+    add_lights(List).
+
 light_up_areas_of_walls_with_equal_neighbors:-
     wall_num(X, Y, GoalNumberOfLights),
     all_neighbors_of(cell(X, Y), List),
