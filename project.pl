@@ -79,15 +79,21 @@ solved :-
     light_count_correct.
 
 % the algorithm:
-% solve:-
-%     solved,findall(lights),print(lights);(
-%     fill_wall_with_equal_neighbors,
-%     solve
-%     );
-%     mark_unavailable_cells,
-%     solve;
-%     light_up_singluar_cells,
-%     solve.
+
+solve:-
+    solved,
+    \+ print_grid_lit, nl,
+    write("HAWKS TEAM IS STRONG"), !;
+    (
+        light_up_areas_of_walls_with_equal_neighbors,
+        solve
+    );
+    (
+        mark_unavailable_cells,
+        solve
+    );
+    light_up_singluar_cells,
+    solve.
 
 ray_contain_only_unavailable([]).
 ray_contain_only_unavailable([cell(A,B)|T]):-
@@ -127,28 +133,22 @@ add_light(cell(X,Y)):-
     yray_of(cell(X,Y),Ylist),
     enlight(Ylist).
 
-add_lights([]).
-
-add_lights([cell(X,Y)|T]):-
+light_up_list([]).
+light_up_list([cell(X, Y) | T]) :-
     add_light(cell(X,Y)),
-    add_lights(T).
+    light_up_list(T).
 
 light_up_singluar_cells:-
     get_all_available_cells(Grid),
     find_all_singulars(Grid,List),
-    add_lights(List).
+    light_up_list(List).
 
-light_up_areas_of_walls_with_equal_neighbors:-
+light_up_areas_of_walls_with_equal_neighbors :-
     wall_num(X, Y, GoalNumberOfLights),
     all_neighbors_of(cell(X, Y), List),
     length(List, NumberOfNeighbors),
     GoalNumberOfLights == NumberOfNeighbors,
     light_up_list(List).
-
-light_up_list([]).
-light_up_list([cell(X, Y) | T]) :-
-    add_light(cell(X,Y)),
-    light_up_list(T).
 
 % mark_unavailable_cells:-
 %     should follow the rules stated in the manifest but I am still to get a decent implementaion.
