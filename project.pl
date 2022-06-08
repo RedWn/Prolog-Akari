@@ -91,10 +91,7 @@ solve:-
         light_up_neighbors(List),
         solve
     );
-    (
-        mark_unavailable_cells,
-        solve
-    );
+    mark_unavailable_cells,
     light_up_singluar_cells,
     solve.
 
@@ -115,8 +112,8 @@ find_all_singulars([cell(A,B)|T],Ans):-
     subtract(Ylist, List, Ylist2),
     length(Xlist2,N1),
     length(Ylist2,N2),
-    \+((N1 is 0, N2 is 0);((N1 is 0,ray_contain_only_unavailable(Ylist2);
-    N2 is 0,ray_contain_only_unavailable(Xlist2)))),find_all_singulars(T,Ans),!.
+    \+((N1 is 0, N2 is 0);((N2 =\= 0, ray_contain_only_unavailable(Ylist2);
+    N1 =\= 0, ray_contain_only_unavailable(Xlist2)))),find_all_singulars(T,Ans),!.
 
 find_all_singulars([cell(A,B)|T],[cell(X,Y)|T1]):-
     X is A,Y is B,
@@ -132,7 +129,6 @@ mark_list_as_lit([cell(X, Y) | T]) :-
 add_light(cell(X, Y)):-
     assert(light(cell(X, Y))),
     assert(lit(cell(X, Y))),
-
     xray_of(cell(X, Y), Xlist),
     yray_of(cell(X, Y), Ylist),
     mark_list_as_lit(Xlist),
@@ -140,7 +136,9 @@ add_light(cell(X, Y)):-
 
 light_up_list([]).
 light_up_list([cell(X, Y) | T]) :-
+    \+lit(cell(X,Y)),
     add_light(cell(X,Y)),
+    light_up_list(T);
     light_up_list(T).
 
 light_up_singluar_cells:-
@@ -160,8 +158,10 @@ find_wall_num_that_have_equal_neighbors(List) :-
     findall(cell(X, Y), (
         wall_num(X, Y, GoalNumberOfLights),
         all_neighbors_of(cell(X, Y), NeighborsList),
-        length(NeighborsList, NumberOfNeighbors),
-        GoalNumberOfLights == NumberOfNeighbors,
+        findall(cell(A,B),lit(cell(A,B)),Litlist),
+        subtract(NeighborsList, Litlist, FinalList),
+        length(FinalList, NumberOfNeighbors),
+        GoalNumberOfLights  =:= NumberOfNeighbors,
 
         \+ is_list_lit(NeighborsList)
 
