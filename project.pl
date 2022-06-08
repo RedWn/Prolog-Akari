@@ -3,8 +3,8 @@
 :- use_module(cell_predicates).
 :- use_module(print_utilities).
 
-is_cell_lighted(cell(X, Y)) :- light(cell(X, Y)), !.
-is_cell_lighted(cell(X, Y)) :-
+is_cell_lit(cell(X, Y)) :- light(cell(X, Y)), !.
+is_cell_lit(cell(X, Y)) :-
     xray_of(cell(X, Y), XRay),
     yray_of(cell(X, Y), YRay),
     count_light_cells(XRay, LightsInXRay),
@@ -14,14 +14,14 @@ is_cell_lighted(cell(X, Y)) :-
         LightsInYRay > 0
     ).
 
-is_list_lighted([]).
-is_list_lighted([cell(X, Y) | T]) :-
-    is_cell_lighted(cell(X, Y)),
-    is_list_lighted(T).
+is_list_lit([]).
+is_list_lit([cell(X, Y) | T]) :-
+    is_cell_lit(cell(X, Y)),
+    is_list_lit(T).
 
-all_cells_lighted :- 
+all_cells_lit :- 
     get_all_cells(List),
-    is_list_lighted(List).
+    is_list_lit(List).
 
 % Counts the number of lights in a given list.
 % Exploration of kind count_light_cells(List, Result) is not working.
@@ -74,7 +74,7 @@ light_count_correct :-
     check_for_lights_of_wall_num(WallsWithNumbersList).
 
 solved :-
-    all_cells_lighted,
+    all_cells_lit,
     no_double_light,
     light_count_correct.
 
@@ -119,19 +119,21 @@ find_all_singulars([cell(A,B)|T],[cell(X,Y)|T1]):-
     X is A,Y is B,
     find_all_singulars(T,T1).
 
-enlight([]).
+mark_list_as_lit([]).
+mark_list_as_lit([cell(X, Y) | T]) :-
+    assert(lit(cell(X, Y))),
+    mark_list_as_lit(T).
 
-enlight([cell(X,Y)|T]):-
-    assert(lit(cell(X,Y))),
-    enlight(T).
+% Places a light in cell(X, Y) and marks it as lit.
+% It also marks the x and y rays of the cell as lit.
+add_light(cell(X, Y)):-
+    assert(light(cell(X, Y))),
+    assert(lit(cell(X, Y))),
 
-add_light(cell(X,Y)):-
-    assert(light(cell(X,Y))),
-    assert(lit(cell(X,Y))),
-    xray_of(cell(X,Y),Xlist),
-    enlight(Xlist),
-    yray_of(cell(X,Y),Ylist),
-    enlight(Ylist).
+    xray_of(cell(X, Y), Xlist),
+    yray_of(cell(X, Y), Ylist),
+    mark_list_as_lit(Xlist),
+    mark_list_as_lit(Ylist).
 
 light_up_list([]).
 light_up_list([cell(X, Y) | T]) :-
@@ -150,8 +152,6 @@ light_up_areas_of_walls_with_equal_neighbors :-
     GoalNumberOfLights == NumberOfNeighbors,
     light_up_list(List).
 
-% mark_unavailable_cells:-
-%     should follow the rules stated in the manifest but I am still to get a decent implementaion.
 
 % Marks a list's members as unavailable (LIGHTS INCLUDED)
 mark_list_cells_unavailable([]).

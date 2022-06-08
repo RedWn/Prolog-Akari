@@ -55,4 +55,6 @@ wall_num(6, 8, 1).
 
 :- dynamic light/1.
 :- dynamic unavailable/1.
+
+% Lit means that the cell is lit (lighted) by a light
 :- dynamic lit/1.
