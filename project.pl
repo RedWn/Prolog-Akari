@@ -85,7 +85,10 @@ solve:-
     \+ print_grid_lit, nl,
     write("HAWKS TEAM IS STRONG"), !;
     (
-        light_up_areas_of_walls_with_equal_neighbors,
+        find_wall_num_that_have_equal_neighbors(List),
+        length(List, N),
+        N > 0,
+        light_up_neighbors(List),
         solve
     );
     (
@@ -145,14 +148,25 @@ light_up_singluar_cells:-
     find_all_singulars(Grid,List),
     light_up_list(List).
 
-light_up_areas_of_walls_with_equal_neighbors :-
-    wall_num(X, Y, GoalNumberOfLights),
+light_up_neighbors([]).
+light_up_neighbors([cell(X, Y) | T]) :-
     all_neighbors_of(cell(X, Y), List),
-    length(List, NumberOfNeighbors),
-    GoalNumberOfLights == NumberOfNeighbors,
-    light_up_list(List).
+    light_up_list(List),
+    light_up_neighbors(T).
 
+% Finds walls with numbers that have an equal number of neighbors
+% and make sure those neighbors are unlit.
+find_wall_num_that_have_equal_neighbors(List) :-
+    findall(cell(X, Y), (
+        wall_num(X, Y, GoalNumberOfLights),
+        all_neighbors_of(cell(X, Y), NeighborsList),
+        length(NeighborsList, NumberOfNeighbors),
+        GoalNumberOfLights == NumberOfNeighbors,
 
+        \+ is_list_lit(NeighborsList)
+
+    ), List).
+    
 % Marks a list's members as unavailable (LIGHTS INCLUDED)
 mark_list_cells_unavailable([]).
 mark_list_cells_unavailable([H|T]) :- H = cell(X, Y),
