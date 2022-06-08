@@ -106,7 +106,8 @@ find_all_singulars([cell(A,B)|T],Ans):-
     subtract(Ylist, List, Ylist2),
     length(Xlist2,N1),
     length(Ylist2,N2),
-    \+((N1 is 0, N2 is 0);((N1 is 0,ray_contain_only_unavailable(Ylist2); N2 is 0,ray_contain_only_unavailable(Xlist2)))),find_all_singulars(T,Ans).
+    \+((N1 is 0, N2 is 0);((N1 is 0,ray_contain_only_unavailable(Ylist2);
+    N2 is 0,ray_contain_only_unavailable(Xlist2)))),find_all_singulars(T,Ans),!.
 
 find_all_singulars([cell(A,B)|T],[cell(X,Y)|T1]):-
     X is A,Y is B,
