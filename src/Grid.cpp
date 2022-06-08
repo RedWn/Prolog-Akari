@@ -73,6 +73,12 @@ void Grid::draw(){
         tile.draw();
     }
 }
+void Grid::solve(){
+    PlCall("solve");
+    for(Tile &tile:tiles){
+        tile.update();
+    }
+}
 GLuint Grid::loadShaderProgram(const char *vertexShaderPath, const char *fragmentShaderPath)
 {
     GLuint program;

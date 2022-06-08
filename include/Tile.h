@@ -21,4 +21,5 @@ public:
     Tile(int x, int y);
     Type type;
     void draw();
+    void update();
 };

@@ -26,7 +26,7 @@ private:
 public:
     static Grid &instance();
     void init();
-    void update();
+    void solve();
     void draw();
     gl::GLuint textures[Tile::NUM_TYPES];
     gl::GLint uniformsLocations[Uniforms::UNIFORM_NUM];

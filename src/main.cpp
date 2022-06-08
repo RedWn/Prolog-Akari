@@ -1,8 +1,8 @@
 #include <SFML/Window.hpp>
-#include<glbinding/glbinding.h>
-#include<SWI-cpp.h>
-#include<glbinding/gl33/gl.h>
-#include<Grid.h>
+#include <glbinding/glbinding.h>
+#include <SWI-cpp.h>
+#include <glbinding/gl33/gl.h>
+#include <Grid.h>
 using namespace sf;
 using namespace gl;
 int main(int argc, char **argv)
@@ -28,7 +28,11 @@ int main(int argc, char **argv)
             case Event::Closed:
                 return 0;
                 break;
-
+            case Event::KeyPressed:
+                if (event.key.code == Keyboard::Space)
+                {
+                    GRID.solve();
+                }
             default:
                 break;
             }
