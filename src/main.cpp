@@ -18,6 +18,9 @@ int main(int argc, char **argv)
     glbinding::initialize(nullptr);
     PlEngine plEngine(2, argv);
     GRID.init();
+    GRID.draw();
+    window.display();
+    bool solved = false;
     while (1)
     {
         Event event;
@@ -29,15 +32,16 @@ int main(int argc, char **argv)
                 return 0;
                 break;
             case Event::KeyPressed:
-                if (event.key.code == Keyboard::Space)
+                if (event.key.code == Keyboard::Space && !solved)
                 {
                     GRID.solve();
+                    GRID.draw();
+                    window.display();
+                    solved = true;
                 }
             default:
                 break;
             }
         }
-        GRID.draw();
-        window.display();
     }
 }
