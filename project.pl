@@ -98,7 +98,7 @@ light_up_areas_of_walls_with_equal_neighbors:-
 
 light_up_list([]).
 light_up_list([cell(X, Y) | T]) :-
-    light(cell(X, Y)),
+    assert(light(cell(X, Y))),
     light_up_list(T).
 
 % mark_unavailable_cells:-
