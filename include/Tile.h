@@ -1,4 +1,5 @@
 #pragma once
+#include<assert.h>
 class Tile{
     int x, y;
     int wallVal;

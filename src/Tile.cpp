@@ -1,5 +1,7 @@
 #include <Tile.h>
 #include <SWI-cpp.h>
+#include<Grid.h>
+using namespace gl;
 Tile::Tile(int x, int y) : x(x), y(y)
 {
     char buffer[128];
@@ -46,4 +48,11 @@ Tile::Tile(int x, int y) : x(x), y(y)
         return;
     }
     type = VOID;
+}
+void Tile::draw(){
+    glUniform1i(GRID.uniformsLocations[Uniforms::X], x);
+    glUniform1i(GRID.uniformsLocations[Uniforms::Y], y);
+    glBindTexture(GL_TEXTURE_2D, GRID.textures[type]);
+    glDrawArrays(GL_POINTS, 0, 1);
+    assert(glGetError() == 0);
 }

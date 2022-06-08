@@ -13,6 +13,7 @@ Grid &Grid::instance()
 }
 void Grid::init()
 {
+    glEnable(GL_PROGRAM_POINT_SIZE);
     PlTerm sizeX, sizeY;
     PlCall("size", PlTermv(sizeX, sizeY));
     horizontalTilesCount = sizeX;
@@ -56,9 +57,22 @@ void Grid::init()
     glBindTexture(GL_TEXTURE_2D, 0);
     shaderProgram = loadShaderProgram("Assets/VertexShader.vs", "Assets/FragmentShader.fs");
     assert(glGetError() == 0);
+    glUseProgram(shaderProgram);
+    uniformsLocations[Uniforms::X] = glGetUniformLocation(shaderProgram, "x");
+    uniformsLocations[Uniforms::Y] = glGetUniformLocation(shaderProgram, "y");
+    uniformsLocations[Uniforms::POINT_SIZE] = glGetUniformLocation(shaderProgram, "size");
+    uniformsLocations[Uniforms::SIZE_FACTOR] = glGetUniformLocation(shaderProgram, "sizeFactor");
+    glUniform1f(uniformsLocations[Uniforms::SIZE_FACTOR], (float)WINDOW_SIDE*0.5f);
+    glUniform1f(uniformsLocations[Uniforms::POINT_SIZE], tileSideSize);
+    assert(glGetError() == 0);
 }
-
-
+void Grid::draw(){
+    glClear(GL_COLOR_BUFFER_BIT);
+    for (Tile tile : tiles)
+    {
+        tile.draw();
+    }
+}
 GLuint Grid::loadShaderProgram(const char *vertexShaderPath, const char *fragmentShaderPath)
 {
     GLuint program;
