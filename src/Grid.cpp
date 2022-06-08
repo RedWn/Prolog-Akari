@@ -33,15 +33,15 @@ void Grid::init()
 
     // Load textures
     Image images[Tile::NUM_TYPES];
-    images[Tile::LIGHT].loadFromFile("");    // TODO
-    images[Tile::WALL].loadFromFile("");     // TODO
-    images[Tile::WALL_0].loadFromFile("");   // TODO
-    images[Tile::WALL_1].loadFromFile("");   // TODO
-    images[Tile::WALL_2].loadFromFile("");   // TODO
-    images[Tile::WALL_3].loadFromFile("");   // TODO
-    images[Tile::WALL_4].loadFromFile("");   // TODO
-    images[Tile::VOID].loadFromFile("");     // TODO
-    images[Tile::LIT_VOID].loadFromFile(""); // TODO
+    images[Tile::LIGHT].loadFromFile("Assets/Light.png");   
+    images[Tile::WALL].loadFromFile("Assets/Wall.png");     
+    images[Tile::WALL_0].loadFromFile("Assets/Wall_0.png"); 
+    images[Tile::WALL_1].loadFromFile("Assets/Wall_1.png"); 
+    images[Tile::WALL_2].loadFromFile("Assets/Wall_2.png"); 
+    images[Tile::WALL_3].loadFromFile("Assets/Wall_3.png"); 
+    images[Tile::WALL_4].loadFromFile("Assets/Wall_4.png"); 
+    images[Tile::VOID].loadFromFile("Assets/Void.png");     
+    images[Tile::LIT_VOID].loadFromFile("Assets/Lit_Void.png");
     for (int i = 0; i < Tile::NUM_TYPES; ++i)
     {
         glGenTextures(1, &textures[i]);
