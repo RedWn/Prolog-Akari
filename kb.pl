@@ -2,7 +2,9 @@
     size/2,
     wall/2,
     wall_num/3,
-    light/1
+    light/1,
+    unavailable/1,
+    lit/1
 ]).
 
 % Size of the game's grid
@@ -37,19 +39,20 @@ wall_num(6, 8, 1).
 
 % Light Cells (for testing purposes)
 light(cell(6, 1)).
-%light(cell(2, 2)).
-%light(cell(8, 2)).
-%light(cell(1, 3)).
-%light(cell(4, 3)).
-%light(cell(3, 4)).
-%light(cell(5, 4)).
-%light(cell(4, 5)).
-%light(cell(6, 5)).
-%light(cell(2, 6)).
-%light(cell(1, 7)).
-%light(cell(8, 7)).
-%light(cell(2, 8)).
-%light(cell(7, 8)).
+light(cell(2, 2)).
+light(cell(8, 2)).
+light(cell(1, 3)).
+light(cell(4, 3)).
+light(cell(3, 4)).
+light(cell(5, 4)).
+light(cell(4, 5)).
+light(cell(6, 5)).
+light(cell(2, 6)).
+light(cell(1, 7)).
+light(cell(8, 7)).
+light(cell(2, 8)).
+% light(cell(7, 8)).
 
 :- dynamic light/1.
-:- dynamic unavailable_cell/1.
+:- dynamic unavailable/1.
+:- dynamic lit/1.
