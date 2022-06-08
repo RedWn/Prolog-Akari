@@ -134,4 +134,7 @@ mark_diag_as_unavailable_:-wall_with_N_1_available_neighbours(cell(X,Y)),
 						L=:=2,
 						assert(unavailable(cell(A,B))).
 						
-mark_diag_as_unavailable:-findall(_,mark_diag_as_unavailable_,_).
+mark_diag_as_unavailable:-findall(_,mark_diag_as_unavailable_,_). % TODO QA ME HARDER
+
+mark_unavailable_cells:-mark_diag_as_unavailable,
+                        mark_satesfied_neighbours_as_unavailable. % TODO QA ME TOO SENPAI ^-*
