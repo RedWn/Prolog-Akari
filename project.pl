@@ -117,4 +117,21 @@ mark_satesfied_neighbours_as_unavailable_ :- wall_num(X, Y, _),
                                         mark_list_cells_unavailable(N).
 
 mark_satesfied_neighbours_as_unavailable:-findall(_, mark_satesfied_neighbours_as_unavailable_, _).         
-                                            
+
+
+wall_with_N_1_available_neighbours(cell(X,Y)) :- wall_num(X,Y,Z),
+												get_adjacent_lights_count(cell(X,Y),LightsCount),
+												all_neighbors_of(cell(X,Y),N),
+												length(N,NCount),
+												NCount - LightsCount =:= Z+1.
+												
+mark_diag_as_unavailable_:-wall_with_N_1_available_neighbours(cell(X,Y)),
+						diag_neightbour_of(cell(X,Y),cell(A,B)),
+						all_neighbors_of_without_lights(cell(X,Y),N0),
+						all_neighbors_of(cell(A,B),N1),
+						intersection(N0,N1,N2),
+						length(N2,L),
+						L=:=2,
+						assert(unavailable(cell(A,B))).
+						
+mark_diag_as_unavailable:-findall(_,mark_diag_as_unavailable_,_).
