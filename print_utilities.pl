@@ -10,8 +10,8 @@ print_grid_cell(cell(X, Y), Lit) :-
     (wall(X, Y), write(#), write(' '), !);
     (light(cell(X, Y)), write('L'), write(' '), !);
     (is_cell_valid(cell(X, Y)), Lit=0, write(.), write(' '), !);
-    (is_cell_valid(cell(X, Y)), Lit=1,is_cell_lit(cell(X, Y)), write(+), write(' '), !);
-    (is_cell_valid(cell(X, Y)), Lit=1,\+ is_cell_lit(cell(X, Y)), write(.), write(' '), !).
+    (is_cell_valid(cell(X, Y)), Lit=1,lit(cell(X, Y)), write(+), write(' '), !);
+    (is_cell_valid(cell(X, Y)), Lit=1,\+ lit(cell(X, Y)), write(.), write(' '), !).
 							
 % print_grid helpers
 print_grid_(X, Y) :- 

@@ -1,7 +1,7 @@
 :- module(cell_predicates, [
     is_cell_valid/1,
     x_indices_of_board/1,
-    get_all_cells/1,
+    get_all_normal_cells/1,
     get_all_available_cells/1,
 
     adjacent_to/2,
@@ -49,8 +49,18 @@ get_cell(X, Y) :-
     member(X, XIndices),
     member(Y, YIndices).
 
-get_all_cells(List) :-
-    findall(cell(X, Y), get_cell(X, Y), List).
+% Returns all cells that are not walls or wall_nums or lights
+get_all_normal_cells(List) :-
+    findall(
+        cell(X, Y),
+        (
+            get_cell(X, Y),
+            \+ wall(X, Y),
+            \+ wall_num(X, Y, _),
+            \+ light(cell(X, Y))
+        ),
+        List
+    ).
 
 get_all_available_cells(List) :-
     findall(cell(X, Y), get_cell(X, Y), All),
@@ -84,7 +94,7 @@ neighbor_of(cell(X, Y), cell(A, B)) :-
     \+ wall(A, B).
 
 % Find all the neighbors of a cell(X, Y) and put them in List           
-all_neighbors_of(cell(X, Y), List) :- %TODO: update to only give unlit cells
+all_neighbors_of(cell(X, Y), List) :- 
     findall(cell(A, B), neighbor_of(cell(X, Y), cell(A, B)), List).
 
 % Checks if two cells are neighbors.
@@ -94,7 +104,7 @@ neighbor_of_with_walls(cell(X, Y), cell(A, B)) :-
     is_cell_valid(cell(A, B)).
 
 % Find all the neighbors of a cell(X, Y) and put them in List           
-all_neighbors_of_with_walls(cell(X, Y), List) :- %TODO: update to only give unlit cells
+all_neighbors_of_with_walls(cell(X, Y), List) :- 
     findall(cell(A, B), neighbor_of_with_walls(cell(X, Y), cell(A, B)), List).
 
 % Checks if 2nd cell is on the diag of the 1st

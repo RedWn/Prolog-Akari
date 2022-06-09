@@ -3,39 +3,25 @@
 :- use_module(cell_predicates).
 :- use_module(print_utilities).
 
-is_cell_lit(cell(X, Y)) :- light(cell(X, Y)), !.
-is_cell_lit(cell(X, Y)) :-
-    xray_of(cell(X, Y), XRay),
-    yray_of(cell(X, Y), YRay),
-    count_light_cells(XRay, LightsInXRay),
-    count_light_cells(YRay, LightsInYRay),
-    (
-        LightsInXRay > 0, !;
-        LightsInYRay > 0
-    ).
-
 is_list_lit([]).
 is_list_lit([cell(X, Y) | T]) :-
-    is_cell_lit(cell(X, Y)),
+    lit(cell(X, Y)),
     is_list_lit(T).
 
 all_cells_lit :- 
-    get_all_cells(List),
+    get_all_normal_cells(List),
     is_list_lit(List).
 
-% Counts the number of lights in a given list.
-% Exploration of kind count_light_cells(List, Result) is not working.
 count_light_cells__([], Accumulator, Accumulator).
-count_light_cells__([H | T], Accumulator, Result) :-
+count_light_cells__([H | T], Accumulator, Count) :-
     (
         light(H) -> 
             NewAccumulator is Accumulator + 1,
-            count_light_cells__(T, NewAccumulator, Result);
-            count_light_cells__(T, Accumulator, Result)
+            count_light_cells__(T, NewAccumulator, Count);
+            count_light_cells__(T, Accumulator, Count)
     ).
-count_light_cells(List, Result) :- count_light_cells__(List, 0, Result).
+count_light_cells(List, Count) :- count_light_cells__(List, 0, Count).
 
-% Returns all the light cells and their count.
 get_all_light_cells(List, Count) :-
     findall(cell(X,Y), light(cell(X, Y)), List),
     length(List, Count).
@@ -77,8 +63,6 @@ solved :-
     all_cells_lit,
     no_double_light,
     light_count_correct.
-
-% the algorithm:
 
 solve:-
     solved,
@@ -158,11 +142,12 @@ find_wall_num_that_have_equal_neighbors(List) :-
     findall(cell(X, Y), (
         wall_num(X, Y, GoalNumberOfLights),
         all_neighbors_of(cell(X, Y), NeighborsList),
-        findall(cell(A,B),lit(cell(A,B)),Litlist),
+        findall(cell(A, B), lit(cell(A, B)), Litlist),
         subtract(NeighborsList, Litlist, FinalList),
         length(FinalList, NumberOfNeighbors),
         GoalNumberOfLights  =:= NumberOfNeighbors,
 
+        % *Hello: Is this line redundant?
         \+ is_list_lit(NeighborsList)
 
     ), List).
