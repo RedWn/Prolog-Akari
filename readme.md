@@ -21,8 +21,29 @@ There's a map parser in the `utils` folder that accepts a map as a string and re
 
 Just choose some map and open the browser's devtools. In the sources tab, inspect the main javascript folder and fiddle around a bit until you find this string.
 
-_Example string:_
+_Example_:
 `..1............2.#...1.3#....#.....2.#...0.2##.1....#.###.#...2.1.....1....#2.2...1.0............#..`
+
+-   Numbers represent walls with numbers.
+-   `.` represent normal cells.
+-   `#` represent normal walls.
+
+## Generating Maps
+
+To generate a map for testing, you can follow these steps:
+
+1. Get the map's string using the method mentioned [here](#parsing-maps).
+2. Put the string of the map inside `utils/map.txt` (without quotes!).
+3. Run `node utils/map-parser.js`
+4. You will find the appropriate predicates written to a file called `kb.pl` in the root directory of the project.
+
+## Knowledge base
+
+-   `wall_num(X, Y, GoalNumberOfLights)`: Means that cell X, Y is a wall that has a number, `GoalNumberOfLights`. This number represents the number of lights that should be present around the cell. So `wall_num(2, 3, 4)` should have 4 light cells around it.
+-   `wall(X, Y)`: Means that cell X, Y is a normal wall.
+-   `size(Rows, Columns)`: Size of the game's grid. Note that the grid should be a **square**.
+-   `lit(cell(X, Y))`: Means that cell X, Y is lit by a light.
+-   `light(cell(X, Y))`: Means that cell X, Y is a light source.
 
 ## TODO
 
