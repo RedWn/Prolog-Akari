@@ -14,20 +14,26 @@ const predicateTypes = {
 const generatePredicate = ({ character = '.', row = 1, column = 1 }) => {
 	let string = '';
 	let type = '';
+	let additionalWallPredicate = '';
 
 	switch (character) {
 		case '.':
-			string = `cell(${row}, ${column})`;
+			string = `cell(${row}, ${column}).`;
 			type = predicateTypes.CELL;
 			break;
 
 		case '#':
-			string = `wall(${row}, ${column})`;
+			string = `wall(${row}, ${column}).`;
 			type = predicateTypes.WALL;
 			break;
 
+		/**
+		 * If the character represents a wall_num, then it needs two predicates:
+		 * One for the wall_num, and another one for the wall.
+		 **/
 		default:
-			string = `wall_num(${row}, ${column}, ${character})`;
+			string = `wall_num(${row}, ${column}, ${character}).`;
+			additionalWallPredicate = `wall(${row}, ${column}).`;
 			type = predicateTypes.WALL_NUMBER;
 			break;
 	}
@@ -35,6 +41,7 @@ const generatePredicate = ({ character = '.', row = 1, column = 1 }) => {
 	return {
 		string,
 		type,
+		additionalWallPredicate,
 	};
 };
 
@@ -49,18 +56,32 @@ const parseMap = (mapString = [], includeCells = false) => {
 	const cellPredicates = [];
 	const wallPredicates = [];
 	const wallWithNumberPredicates = [];
-
 	const mapLimit = Math.sqrt(mapString.length);
 
 	let rowCounter = 1;
-	let columnCounter = 1;
+	let columnCounter = mapLimit;
 
+	/**
+	 * ! IMPORTANT:
+	 *
+	 * Our map's (1, 1) coordinate is the bottom left corner,
+	 * while maps from Akari's website start from top the top left corner.
+	 *
+	 * It's important to mind this indexing difference in
+	 * row and column counters.
+     * 
+     * i.e., for an 8 * 8 grid, Akari's map characters go like this:
+     * 
+     * (1, 8) -> (2, 8) -> (3, 8), -> ... -> (8, 8)
+     * (1, 7) -> (2, 7) -> (3, 7), -> ... -> (8, 7)
+     * 
+	 */
 	for (const character of mapString) {
-		// Reset column counter and move to another row
+		// Reset row counter and move to another row
 		// when you reach the end of the grid.
-		if (columnCounter > mapLimit) {
-			columnCounter = 1;
-			rowCounter++;
+		if (rowCounter > mapLimit) {
+			rowCounter = 1;
+			columnCounter--;
 		}
 
 		const predicate = generatePredicate({
@@ -71,25 +92,23 @@ const parseMap = (mapString = [], includeCells = false) => {
 
 		const type = predicate.type;
 		if (type == predicateTypes.CELL) {
-			cellPredicates.push(predicate);
+			cellPredicates.push(predicate.string);
 		} else if (type == predicateTypes.WALL) {
-			wallPredicates.push(predicate);
+			wallPredicates.push(predicate.string);
 		} else {
-			wallWithNumberPredicates.push(predicate);
+			wallPredicates.push(predicate.additionalWallPredicate);
+			wallWithNumberPredicates.push(predicate.string);
 		}
 
-		columnCounter++;
+		rowCounter++;
 	}
 
-	const sizePredicate = {
-		string: `size(${mapLimit}, ${mapLimit})`,
-	};
+	const sizePredicate = `size(${mapLimit}, ${mapLimit}).\n`;
 	const predicates = includeCells ? cellPredicates : [];
 	return predicates
 		.concat(wallPredicates)
 		.concat(wallWithNumberPredicates)
-		.concat(sizePredicate)
-		.map((predicate) => predicate.string);
+		.concat(sizePredicate);
 };
 
 const writePredicatesToKB = (predicates, filePath) => {
@@ -126,12 +145,6 @@ const writePredicatesToKB = (predicates, filePath) => {
 	}
 };
 
-/**
- * Refines predicates to match prolog's syntax.
- */
-const refinePredicates = (predicates) =>
-	predicates.map((predicate) => `${predicate}.`);
-
 const readMapFromFile = (filePath) => {
 	try {
 		console.log(`\nReading map from ${filePath} ...\n`);
@@ -149,12 +162,10 @@ const main = () => {
 	const kbFilePath = path.resolve(__dirname, `../${kbFilename}`);
 	const mapFilePath = path.join(__dirname, '/map.txt');
 
-    // Actual parsing
+	// Actual parsing
 	const mapString = readMapFromFile(mapFilePath);
 	const predicates = parseMap(mapString);
-	const refinedPredicates = refinePredicates(predicates);
-	writePredicatesToKB(refinedPredicates, kbFilePath);
-
+	writePredicatesToKB(predicates, kbFilePath);
 	console.log(`Predicates written successfully to file ${kbFilename}.`);
 };
 
