@@ -51,7 +51,7 @@ void Tile::update(){
         type = LIGHT;
         return;
     }
-    if (sprintf(buffer, "is_cell_lit(cell(%d, %d))", x, y) &&
+    if (sprintf(buffer, "lit(cell(%d, %d))", x, y) &&
         PlCall(buffer))
     {
         type = LIT_VOID;
