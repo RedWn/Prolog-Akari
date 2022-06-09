@@ -51,6 +51,10 @@ To generate a map for testing, you can follow these steps:
 -   `lit(cell(X, Y))`: Means that cell X, Y is lit by a light.
 -   `light(cell(X, Y))`: Means that cell X, Y is a light source.
 
+## Solution Algorithm
+
+TODO: @redwn please elaborate on the algorithm here.
+
 ## TODO
 
 -   [ ] Adjust variable names
