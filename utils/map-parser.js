@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { fetchMap } = require('./map-fetcher');
 
 const predicateTypes = {
 	CELL: 'CELL',
@@ -69,12 +70,12 @@ const parseMap = (mapString = [], includeCells = false) => {
 	 *
 	 * It's important to mind this indexing difference in
 	 * row and column counters.
-     * 
-     * i.e., for an 8 * 8 grid, Akari's map characters go like this:
-     * 
-     * (1, 8) -> (2, 8) -> (3, 8), -> ... -> (8, 8)
-     * (1, 7) -> (2, 7) -> (3, 7), -> ... -> (8, 7)
-     * 
+	 *
+	 * i.e., for an 8 * 8 grid, Akari's map characters go like this:
+	 *
+	 * (1, 8) -> (2, 8) -> (3, 8), -> ... -> (8, 8)
+	 * (1, 7) -> (2, 7) -> (3, 7), -> ... -> (8, 7)
+	 *
 	 */
 	for (const character of mapString) {
 		// Reset row counter and move to another row
@@ -145,7 +146,7 @@ const writePredicatesToKB = (predicates, filePath) => {
 	}
 };
 
-const readMapFromFile = (filePath) => {
+const readMapFromTextFile = (filePath) => {
 	try {
 		console.log(`\nReading map from ${filePath} ...\n`);
 		const mapString = fs.readFileSync(filePath, 'utf8');
@@ -156,17 +157,23 @@ const readMapFromFile = (filePath) => {
 	}
 };
 
-const main = () => {
+const getMapURL = () => {
+    return process.argv[2];    
+}
+
+const main = async () => {
 	// File paths and names
 	const kbFilename = 'kb.pl';
 	const kbFilePath = path.resolve(__dirname, `../${kbFilename}`);
-	const mapFilePath = path.join(__dirname, '/map.txt');
 
-	// Actual parsing
-	const mapString = readMapFromFile(mapFilePath);
+	// You can either read a map from a text file or fetch it online.
+    const mapURL = getMapURL();
+    if (!mapURL) return console.error("[ERROR]: Please provide a valid map URL.");
+
+	const mapString = await fetchMap(mapURL);
 	const predicates = parseMap(mapString);
 	writePredicatesToKB(predicates, kbFilePath);
-	console.log(`Predicates written successfully to file ${kbFilename}.`);
+	console.log(`Map written successfully to file ${kbFilename}.`);
 };
 
 main();
