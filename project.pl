@@ -80,9 +80,9 @@ solve:-
     solve.
 
 ray_contain_only_unavailable([]).
-ray_contain_only_unavailable([cell(A,B)|T]):-
-    findall(cell(X,Y),unavailable(cell(X,Y)),Unavailables),
-    member(cell(A,B), Unavailables),
+ray_contain_only_unavailable([cell(A, B) | T]):-
+    findall(cell(X, Y),unavailable(cell(X, Y)), Unavailables),
+    member(cell(A, B), Unavailables),
     ray_contain_only_unavailable(T).
     
 
@@ -120,14 +120,14 @@ add_light(cell(X, Y)):-
 
 light_up_list([]).
 light_up_list([cell(X, Y) | T]) :-
-    \+lit(cell(X,Y)),
-    add_light(cell(X,Y)),
+    \+lit(cell(X, Y)),
+    add_light(cell(X, Y)),
     light_up_list(T);
     light_up_list(T).
 
 light_up_singluar_cells:-
     get_all_available_cells(Grid),
-    find_all_singulars(Grid,List),
+    find_all_singulars(Grid, List),
     light_up_list(List).
 
 light_up_neighbors([]).
@@ -154,36 +154,42 @@ find_wall_num_that_have_equal_neighbors(List) :-
     
 % Marks a list's members as unavailable (LIGHTS INCLUDED)
 mark_list_cells_unavailable([]).
-mark_list_cells_unavailable([H|T]) :- H = cell(X, Y),
-                                    assert(unavailable(cell(X, Y))),
-                                    mark_list_cells_unavailable(T).
+mark_list_cells_unavailable([cell(X, Y) | T]) :-
+    assert(unavailable(cell(X, Y))),
+    mark_list_cells_unavailable(T).
 
 % Marks satesfied walls neighbours as unavailable (Zeroed walls included)
-mark_satesfied_neighbours_as_unavailable_ :- wall_num(X, Y, _),
-                                        check_for_lights_of_wall_num([cell(X, Y)]),
-                                        all_neighbors_of(cell(X, Y), N),
-                                        mark_list_cells_unavailable(N).
+mark_satesfied_neighbours_as_unavailable_ :-
+    wall_num(X, Y, _),
+    check_for_lights_of_wall_num([cell(X, Y)]),
+    all_neighbors_of(cell(X, Y), N),
+    mark_list_cells_unavailable(N).
 
-mark_satesfied_neighbours_as_unavailable:-findall(_, mark_satesfied_neighbours_as_unavailable_, _).         
+mark_satesfied_neighbours_as_unavailable :- 
+    findall(_, mark_satesfied_neighbours_as_unavailable_, _).         
 
 % Checks if a cell has its value+1 available neighbour
-wall_with_N_1_available_neighbours(cell(X, Y)) :- wall_num(X, Y, Z),
-												get_adjacent_lights_count(cell(X, Y), LightsCount),
-												all_neighbors_of(cell(X, Y), N),
-												length(N, NCount),
-												NCount - LightsCount =:= Z + 1.
+wall_with_N_1_available_neighbours(cell(X, Y)) :-
+    wall_num(X, Y, Z),
+	get_adjacent_lights_count(cell(X, Y), LightsCount),
+	all_neighbors_of(cell(X, Y), N),
+	length(N, NCount),
+	NCount - LightsCount =:= Z + 1.
 
 % Marks the cells that satesify the condition in algor. rules as unavailable								
-mark_diag_as_unavailable_ :- wall_with_N_1_available_neighbours(cell(X, Y)),
-						diag_neightbour_of(cell(X, Y),cell(A, B)),
-						all_neighbors_of_without_lights(cell(X, Y), N0),
-						all_neighbors_of(cell(A, B), N1),
-						intersection(N0, N1, N2),
-						length(N2, L),
-						L =:= 2,
-						assert(unavailable(cell(A, B))).
+mark_diag_as_unavailable_ :-
+    wall_with_N_1_available_neighbours(cell(X, Y)),
+	diag_neightbour_of(cell(X, Y), cell(A, B)),
+	all_neighbors_of_without_lights(cell(X, Y), N0),
+	all_neighbors_of(cell(A, B), N1),
+	intersection(N0, N1, N2),
+	length(N2, L),
+	L =:= 2,
+	assert(unavailable(cell(A, B))).
 						
-mark_diag_as_unavailable :- findall(_, mark_diag_as_unavailable_, _). % TODO QA ME HARDER
+mark_diag_as_unavailable :-
+    findall(_, mark_diag_as_unavailable_, _). % TODO QA ME HARDER
 
-mark_unavailable_cells :- mark_diag_as_unavailable,
-                        mark_satesfied_neighbours_as_unavailable. % TODO QA ME TOO SENPAI ^-*
+mark_unavailable_cells :- 
+    mark_diag_as_unavailable,
+    mark_satesfied_neighbours_as_unavailable. % TODO QA ME TOO SENPAI ^-*

@@ -1,29 +1,20 @@
 :- module(cell_predicates, [
     is_cell_valid/1,
-    x_indices_of_board/1,
     get_all_normal_cells/1,
     get_all_available_cells/1,
-
-    adjacent_to/2,
-    neighbor_of/2,
     all_neighbors_of/2,
-    neighbor_of_with_walls/2,
-    all_neighbors_of_with_walls/2,
-    diag_to/2,
-    diag_neightbour_of/2,
-    all_diag_neighbors_of/2,
-    neighbor_of_without_lights/2,
-    all_neighbors_of_without_lights/2
+    all_neighbors_of_without_lights/2,
+    diag_neightbour_of/2
 ]).
 
-% A cell is valid if it's positioned within the boundaries of the grid
+% A cell is valid if it's positioned within the boundaries of the grid.
 is_cell_valid(cell(X, Y)) :-
     X >= 1, Y >= 1,
     size(Width, Height),
     X =< Width,
     Y =< Height. % NOTE: I think this can be just cell(X,Y) instead
 
-% x indices, returns a list with x axes discrete values
+% Returns a list of all possible discrete X indices of cells.
 x_indices__([], 0).
 x_indices__(List, Index) :- 
     Index > 0,
@@ -31,9 +22,11 @@ x_indices__(List, Index) :-
     x_indices__(PreviousList, PreviousIndex),
     List = [Index | PreviousList].
 
-x_indices_of_board(List):- size(Width, _), x_indices__(List, Width).
+x_indices_of_grid(List):- 
+    size(Width, _),
+    x_indices__(List, Width).
 
-% y indices, returns a list with y axes discrete values
+% Returns a list of all possible discrete Y indices of cells.
 y_indices__([],0).
 y_indices__(List, Index) :-
     Index > 0,
@@ -41,15 +34,18 @@ y_indices__(List, Index) :-
     y_indices__(PreviousList, PreviousIndex),
     List=[Index|PreviousList].
 
-y_indices_of_board(List) :- size(_, Height), y_indices__(List, Height).
+y_indices_of_grid(List) :- 
+    size(_, Height),
+    y_indices__(List, Height).
 
 get_cell(X, Y) :-
-    x_indices_of_board(XIndices),
-    y_indices_of_board(YIndices),
+    % Loops over all possible X and Y combinations.
+    x_indices_of_grid(XIndices),
+    y_indices_of_grid(YIndices),
     member(X, XIndices),
     member(Y, YIndices).
 
-% Returns all cells that are not walls or wall_nums or lights
+% Returns all cells that are not walls or wall_nums or lights.
 get_all_normal_cells(List) :-
     findall(
         cell(X, Y),
@@ -90,22 +86,34 @@ adjacent_to(cell(X, Y), cell(A, B)) :-
 neighbor_of(cell(X, Y), cell(A, B)) :-
     is_cell_valid(cell(X, Y)),
     adjacent_to(cell(X, Y), cell(A, B)),
-    is_cell_valid(cell(A, B)),
-    \+ wall(A, B).
-
-% Find all the neighbors of a cell(X, Y) and put them in List           
-all_neighbors_of(cell(X, Y), List) :- 
-    findall(cell(A, B), neighbor_of(cell(X, Y), cell(A, B)), List).
-
-% Checks if two cells are neighbors.
-neighbor_of_with_walls(cell(X, Y), cell(A, B)) :-
-    is_cell_valid(cell(X, Y)),
-    adjacent_to(cell(X, Y), cell(A, B)),
     is_cell_valid(cell(A, B)).
 
-% Find all the neighbors of a cell(X, Y) and put them in List           
+% Find all the neighbors of a cell(X, Y) that are not walls.       
+all_neighbors_of(cell(X, Y), List) :- 
+    findall(
+        cell(A, B),
+        (
+            neighbor_of(cell(X, Y), cell(A, B)),
+            \+ wall(A, B)
+        ),
+        List
+    ).
+
+% Same as finding all neighbors, excluding light cells (Light cells, not lit ones).
+all_neighbors_of_without_lights(cell(X, Y), List) :- 
+    findall(
+        cell(A, B),
+        (
+            neighbor_of(cell(X, Y), cell(A, B)),
+            \+ wall(A, B),
+            \+ light(cell(A, B))
+        ),
+        List
+    ).
+
+% Find all the neighbors of a cell(X, Y) that may contain walls.       
 all_neighbors_of_with_walls(cell(X, Y), List) :- 
-    findall(cell(A, B), neighbor_of_with_walls(cell(X, Y), cell(A, B)), List).
+    findall(cell(A, B), neighbor_of(cell(X, Y), cell(A, B)), List).
 
 % Checks if 2nd cell is on the diag of the 1st
 diag_to(cell(X, Y), cell(A, B)) :-
@@ -131,15 +139,3 @@ diag_neightbour_of(cell(X, Y), cell(A, B)) :-
 % Find all diagonal related cells and put them in List
 all_diag_neighbors_of(cell(X, Y), List) :- 
     findall(cell(A, B), diag_neightbour_of(cell(X, Y), cell(A, B)), List).
-
-% Same as checking neighbours, excluding light cells (NOT LIT)           
-neighbor_of_without_lights(cell(X, Y), cell(A, B)) :-
-    is_cell_valid(cell(X, Y)),
-    adjacent_to(cell(X, Y), cell(A, B)),
-    is_cell_valid(cell(A, B)),
-    \+ wall(A, B),
-    \+ light(cell(A, B)).
-    
-% Same as finding all neighbors, excluding light cells (NOT LIT)
-all_neighbors_of_without_lights(cell(X, Y), List) :- 
-    findall(cell(A, B), neighbor_of_without_lights(cell(X, Y), cell(A, B)), List).
