@@ -145,10 +145,9 @@ find_wall_num_that_have_equal_neighbors(List) :-
         findall(cell(A, B), lit(cell(A, B)), Litlist),
         subtract(NeighborsList, Litlist, FinalList),
         length(FinalList, NumberOfNeighbors),
-        GoalNumberOfLights  =:= NumberOfNeighbors,
-
-        % *Hello: Is this line redundant?
-        \+ is_list_lit(NeighborsList)
+        get_adjacent_lights_count(cell(X, Y), ActualNumberOfLights),
+        GoalNumberOfLights - ActualNumberOfLights  =:= NumberOfNeighbors,
+        NumberOfNeighbors =\= 0
 
     ), List).
     
