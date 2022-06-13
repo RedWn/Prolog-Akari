@@ -157,38 +157,46 @@ mark_list_cells_unavailable([cell(X, Y) | T]) :-
     assert(unavailable(cell(X, Y))),
     mark_list_cells_unavailable(T).
 
-% Marks satesfied walls neighbours as unavailable (Zeroed walls included)
-mark_satesfied_neighbours_as_unavailable_ :-
+% Marks satisfied walls neighbours as unavailable (Zeroed walls included)
+mark_satisfied_neighbours_as_unavailable_ :-
     wall_num(X, Y, _),
     check_for_lights_of_wall_num([cell(X, Y)]),
     all_neighbors_of(cell(X, Y), N),
     mark_list_cells_unavailable(N).
 
-mark_satesfied_neighbours_as_unavailable :- 
-    findall(_, mark_satesfied_neighbours_as_unavailable_, _).         
+mark_satisfied_neighbours_as_unavailable :- 
+    findall(_, mark_satisfied_neighbours_as_unavailable_, _).         
 
-% Checks if a cell has its value+1 available neighbour
-wall_with_N_1_available_neighbours(cell(X, Y)) :-
-    wall_num(X, Y, Z),
-	get_adjacent_lights_count(cell(X, Y), LightsCount),
-	all_neighbors_of(cell(X, Y), N),
-	length(N, NCount),
-	NCount - LightsCount =:= Z + 1.
+% Checks if a wall_num has GoalNumberOfLights + 1 available neighbors
+% which are not lights.
+wall_num_with_NPlusOne_available_neighbors(cell(X, Y)) :-
+    wall_num(X, Y, GoalNumberOfLights),
+    all_neighbors_of_without_lights(cell(X, Y), NeighborsListWithoutLights),
+	length(NeighborsListWithoutLights, NeighborsCount),
+	NeighborsCount =:= GoalNumberOfLights + 1.
 
-% Marks the cells that satesify the condition in algor. rules as unavailable								
-mark_diag_as_unavailable_ :-
-    wall_with_N_1_available_neighbours(cell(X, Y)),
+% Marks the cells that satisfy the algorithm's conditions as unavailable
+mark_diag_as_unavailable__ :-
+    % Get wall_num and one if its diagonal cells
+    wall_num_with_NPlusOne_available_neighbors(cell(X, Y)),
 	diag_neightbour_of(cell(X, Y), cell(A, B)),
-	all_neighbors_of_without_lights(cell(X, Y), N0),
-	all_neighbors_of(cell(A, B), N1),
-	intersection(N0, N1, N2),
-	length(N2, L),
-	L =:= 2,
+
+    % Get the neighbors of wall_num and diagonal cell
+	all_neighbors_of_without_lights(cell(X, Y), NeighborsOfWallNum),
+	all_neighbors_of(cell(A, B), NeighborsOfDiagonalCell),
+
+    % Find the intersection of the two lists
+	intersection(NeighborsOfWallNum, NeighborsOfDiagonalCell, SharedCells),
+	length(SharedCells, SharedCellsLength),
+
+    % If the length of the intersection == 2 then mark diagonal 
+    % cell as unavailable.
+	SharedCellsLength =:= 2,
 	assert(unavailable(cell(A, B))).
 						
 mark_diag_as_unavailable :-
-    findall(_, mark_diag_as_unavailable_, _). % TODO QA ME HARDER
+    findall(_, mark_diag_as_unavailable__, _). 
 
 mark_unavailable_cells :- 
     mark_diag_as_unavailable,
-    mark_satesfied_neighbours_as_unavailable. % TODO QA ME TOO SENPAI ^-*
+    mark_satisfied_neighbours_as_unavailable.
