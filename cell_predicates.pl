@@ -4,6 +4,7 @@
     get_all_available_cells/1,
     all_neighbors_of/2,
     all_neighbors_of_without_lights/2,
+    all_unlit_neighbors/2,
     diag_neightbour_of/2
 ]).
 
@@ -107,6 +108,17 @@ all_neighbors_of_without_lights(cell(X, Y), List) :-
             neighbor_of(cell(X, Y), cell(A, B)),
             \+ wall(A, B),
             \+ light(cell(A, B))
+        ),
+        List
+    ).
+
+all_unlit_neighbors(cell(X, Y), List) :-
+    findall(
+        cell(A, B),
+        (
+            neighbor_of(cell(X, Y), cell(A, B)),
+            \+ wall(A, B),
+            \+ lit(cell(A, B))
         ),
         List
     ).

@@ -3,14 +3,18 @@
 :- use_module(cell_predicates).
 :- use_module(print_utilities).
 
-is_list_lit([]).
-is_list_lit([cell(X, Y) | T]) :-
-    lit(cell(X, Y)),
-    is_list_lit(T).
+mark_list_as_lit([]).
+mark_list_as_lit([cell(X, Y) | T]) :-
+    assert(lit(cell(X, Y))),
+    mark_list_as_lit(T).
 
+% Normal cells list should be == Lit cells list
+% Therefore Length(Normal) - Length(Lit) == 0.
 all_cells_lit :- 
     get_all_normal_cells(List),
-    is_list_lit(List).
+    findall(cell(A, B), lit(cell(A, B)), Litlist),
+    subtract(List, Litlist, FinalList),
+    length(FinalList, 0).
 
 count_light_cells__([], Accumulator, Accumulator).
 count_light_cells__([H | T], Accumulator, Count) :-
@@ -50,7 +54,6 @@ check_for_lights_of_wall_num([cell(X, Y) | T]) :-
     wall_num(X, Y, GoalNumberOfLights),
     get_adjacent_lights_count(cell(X, Y), ActualNumberOfLights),
     GoalNumberOfLights =:= ActualNumberOfLights,
-    
     check_for_lights_of_wall_num(T).
 
 % check_for_lights_of_wall_num(([cell(2, 3), cell(4, 4)])). This case causes prolog to backtrack.
@@ -86,8 +89,7 @@ ray_contain_only_unavailable([cell(A, B) | T]):-
     ray_contain_only_unavailable(T).
     
 
-find_all_singulars([],[]).
-
+find_all_singulars([], []).
 find_all_singulars([cell(A,B)|T],Ans):-
     xray_of(cell(A,B),Xlist),
     yray_of(cell(A,B),Ylist),
@@ -102,11 +104,6 @@ find_all_singulars([cell(A,B)|T],Ans):-
 find_all_singulars([cell(A,B)|T],[cell(X,Y)|T1]):-
     X is A,Y is B,
     find_all_singulars(T,T1).
-
-mark_list_as_lit([]).
-mark_list_as_lit([cell(X, Y) | T]) :-
-    assert(lit(cell(X, Y))),
-    mark_list_as_lit(T).
 
 % Places a light in cell(X, Y) and marks it as lit.
 % It also marks the x and y rays of the cell as lit.
@@ -168,12 +165,13 @@ mark_satisfied_neighbours_as_unavailable :-
     findall(_, mark_satisfied_neighbours_as_unavailable_, _).         
 
 % Checks if a wall_num has GoalNumberOfLights + 1 available neighbors
-% which are not lights.
+% which are not lit cells.
 wall_num_with_NPlusOne_available_neighbors(cell(X, Y)) :-
     wall_num(X, Y, GoalNumberOfLights),
-    all_neighbors_of_without_lights(cell(X, Y), NeighborsListWithoutLights),
-	length(NeighborsListWithoutLights, NeighborsCount),
-	NeighborsCount =:= GoalNumberOfLights + 1.
+    all_unlit_neighbors(cell(X, Y), UnlitNeighbors),
+	length(UnlitNeighbors, UnlitNeighborsLength),
+    get_adjacent_lights_count(cell(X, Y), ActualNumberOfLights),
+	UnlitNeighborsLength =:= GoalNumberOfLights - ActualNumberOfLights + 1.
 
 % Marks the cells that satisfy the algorithm's conditions as unavailable
 mark_diag_as_unavailable__ :-
@@ -182,7 +180,7 @@ mark_diag_as_unavailable__ :-
 	diag_neightbour_of(cell(X, Y), cell(A, B)),
 
     % Get the neighbors of wall_num and diagonal cell
-	all_neighbors_of_without_lights(cell(X, Y), NeighborsOfWallNum),
+	all_unlit_neighbors(cell(X, Y), NeighborsOfWallNum),
 	all_neighbors_of(cell(A, B), NeighborsOfDiagonalCell),
 
     % Find the intersection of the two lists

@@ -112,6 +112,43 @@ const parseMap = (mapString = [], includeCells = false) => {
 		.concat(sizePredicate);
 };
 
+// TODO: Refactor the two parsing functions
+const parseSolutions = (solutionsString) => {
+    const lightPredicates = [];
+	const mapLimit = Math.sqrt(solutionsString.length);
+
+	let rowCounter = 1;
+	let columnCounter = mapLimit;
+
+	for (const character of mapString) {
+		// Reset row counter and move to another row
+		// when you reach the end of the grid.
+		if (rowCounter > mapLimit) {
+			rowCounter = 1;
+			columnCounter--;
+		}
+
+        if (character == 1) {
+            lightPredicates.push(`light(cell(${rowCounter}, ${columnCounter}))`);
+        }
+
+		rowCounter++;
+	}
+
+	return lightPredicates;
+}
+
+// const writeTestsToTestFile = (predicates, filePath) => {
+//     const tests = predicates.join('\n');
+
+//     const testHeaders = `:- begin_tests(project).\n:- include(project).\n`;
+//     const testBody = `
+// test("Check if all lights are placed correctly") :-
+//     ${tests}.
+//     `;
+//     const testFooter
+// }
+
 const writePredicatesToKB = (predicates, filePath) => {
 	const kb = predicates.join('\n');
 
@@ -158,22 +195,24 @@ const readMapFromTextFile = (filePath) => {
 };
 
 const getMapURL = () => {
-    return process.argv[2];    
-}
+	return process.argv[2];
+};
 
 const main = async () => {
-	// File paths and names
-	const kbFilename = 'kb.pl';
-	const kbFilePath = path.resolve(__dirname, `../${kbFilename}`);
+	const kbFilePath = path.resolve(__dirname, `../kb.pl`);
 
 	// You can either read a map from a text file or fetch it online.
-    const mapURL = getMapURL();
-    if (!mapURL) return console.error("[ERROR]: Please provide a valid map URL.");
+	const mapURL = getMapURL();
+	if (!mapURL)
+		return console.error('[ERROR]: Please provide a valid map URL.');
 
-	const mapString = await fetchMap(mapURL);
+	const { mapString, mapSolution } = await fetchMap(mapURL);
 	const predicates = parseMap(mapString);
+    // const tests = parseSolution(mapSolution);
+
 	writePredicatesToKB(predicates, kbFilePath);
-	console.log(`Map written successfully to file ${kbFilename}.`);
+    // writeTestsToTestFile()
+	console.log(`Map written successfully to file kb.pl.`);
 };
 
 main();
