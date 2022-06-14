@@ -170,7 +170,8 @@ wall_num_with_NPlusOne_available_neighbors(cell(X, Y)) :-
     wall_num(X, Y, GoalNumberOfLights),
     all_unlit_neighbors(cell(X, Y), UnlitNeighbors),
 	length(UnlitNeighbors, UnlitNeighborsLength),
-	UnlitNeighborsLength =:= GoalNumberOfLights + 1.
+    get_adjacent_lights_count(cell(X, Y), ActualNumberOfLights),
+	UnlitNeighborsLength =:= GoalNumberOfLights - ActualNumberOfLights + 1.
 
 % Marks the cells that satisfy the algorithm's conditions as unavailable
 mark_diag_as_unavailable__ :-
