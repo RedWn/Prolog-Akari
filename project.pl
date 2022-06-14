@@ -3,19 +3,18 @@
 :- use_module(cell_predicates).
 :- use_module(print_utilities).
 
-is_list_lit([]).
-is_list_lit([cell(X, Y) | T]) :-
-    lit(cell(X, Y)),
-    is_list_lit(T).
-
 mark_list_as_lit([]).
 mark_list_as_lit([cell(X, Y) | T]) :-
     assert(lit(cell(X, Y))),
     mark_list_as_lit(T).
 
+% Normal cells list should be == Lit cells list
+% Therefore Length(Normal) - Length(Lit) == 0.
 all_cells_lit :- 
     get_all_normal_cells(List),
-    is_list_lit(List).
+    findall(cell(A, B), lit(cell(A, B)), Litlist),
+    subtract(List, Litlist, FinalList),
+    length(FinalList, 0).
 
 count_light_cells__([], Accumulator, Accumulator).
 count_light_cells__([H | T], Accumulator, Count) :-
