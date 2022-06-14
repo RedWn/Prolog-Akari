@@ -2,7 +2,7 @@
 #include<vector>
 #include<Tile.h>
 #include<glbinding/gl33/gl.h>
-#define WINDOW_SIDE 512
+#define WINDOW_SIDE 650
 #define GRID Grid::instance()
 enum Uniforms
 {

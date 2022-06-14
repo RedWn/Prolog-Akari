@@ -50,7 +50,7 @@ void Grid::init()
         glGenTextures(1, &textures[i]);
         glBindTexture(GL_TEXTURE_2D, textures[i]);
         glTextureParameteri(textures[i], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTextureParameteri(textures[i], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTextureParameteri(textures[i], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, images[i].getSize().x, images[i].getSize().y, 0,
                      GL_RGBA, GL_UNSIGNED_BYTE, images[i].getPixelsPtr());
     }
@@ -62,7 +62,7 @@ void Grid::init()
     uniformsLocations[Uniforms::Y] = glGetUniformLocation(shaderProgram, "y");
     uniformsLocations[Uniforms::POINT_SIZE] = glGetUniformLocation(shaderProgram, "size");
     uniformsLocations[Uniforms::SIZE_FACTOR] = glGetUniformLocation(shaderProgram, "sizeFactor");
-    glUniform1f(uniformsLocations[Uniforms::SIZE_FACTOR], (float)WINDOW_SIDE*0.5f);
+    glUniform1f(uniformsLocations[Uniforms::SIZE_FACTOR], (float)WINDOW_SIDE*0.48828125f);
     glUniform1f(uniformsLocations[Uniforms::POINT_SIZE], tileSideSize);
     assert(glGetError() == 0);
 }
