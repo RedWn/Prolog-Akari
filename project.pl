@@ -8,13 +8,31 @@ mark_list_as_lit([cell(X, Y) | T]) :-
     assert(lit(cell(X, Y))),
     mark_list_as_lit(T).
 
-% If length(NormalCells) == length(LitCells), then all cells are lit.
+% A cell is lit if either of the following is true:
+%   1. It is asserted as lit.
+%   2. It is a light.
+%   3. There are lights in either of its X or Y rays.
+is_cell_lit(cell(X, Y)) :- lit(cell(X, Y)), !.
+is_cell_lit(cell(X, Y)) :- light(cell(X, Y)), !.
+is_cell_lit(cell(X, Y)) :-
+    xray_of(cell(X, Y), XRay),
+    yray_of(cell(X, Y), YRay),
+    count_light_cells(XRay, LightsInXRay),
+    count_light_cells(YRay, LightsInYRay),
+    (
+        LightsInXRay > 0, !;
+        LightsInYRay > 0
+    ).
+
+is_list_lit([]).
+is_list_lit([cell(X, Y) | T]) :-
+    is_cell_lit(cell(X, Y)),
+    is_list_lit(T).
+
+% Returns whether all normal cells are lit or not.
 all_cells_lit :- 
     get_all_normal_cells(List),
-    get_all_lit_cells(LitList),
-    length(List, NormalCellsCount),
-    length(LitList, LitCellsCount),
-    NormalCellsCount =< LitCellsCount.
+    is_list_lit(List).
 
 
 count_light_cells__([], Accumulator, Accumulator).
