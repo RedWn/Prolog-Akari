@@ -47,16 +47,12 @@ const generatePredicate = ({ character = '.', row = 1, column = 1 }) => {
 };
 
 /**
- * Parses a given Akari string map into a list of predicates.
- *
+ * Iterates over the characters of the map string and invokes
+ * the `callback` parameter for each one.
  * @param {Array<String>} mapString
- * @param {Boolean} includeCells Whether to include cell predicates or not
- * @returns
+ * @param {Function} callback
  */
-const parseMap = (mapString = [], includeCells = false) => {
-	const cellPredicates = [];
-	const wallPredicates = [];
-	const wallWithNumberPredicates = [];
+const iterateOverMap = (mapString, callback) => {
 	const mapLimit = Math.sqrt(mapString.length);
 
 	let rowCounter = 1;
@@ -85,58 +81,67 @@ const parseMap = (mapString = [], includeCells = false) => {
 			columnCounter--;
 		}
 
-		const predicate = generatePredicate({
+		callback({
 			character,
 			row: rowCounter,
 			column: columnCounter,
 		});
 
+		rowCounter++;
+	}
+};
+
+/**
+ * Parses a given Akari string map into a list of predicates.
+ *
+ * @param mapInfo
+ * @param {Boolean} includeLights Whether to include light predicates or not
+ * @returns
+ */
+const parseMap = (mapInfo = {}, includeLights = false) => {
+	let lightPredicates = [];
+	const wallPredicates = [];
+	const wallWithNumberPredicates = [];
+
+	const { mapString, mapSolution } = mapInfo;
+	const mapLimit = Math.sqrt(mapString.length);
+
+	if (includeLights) lightPredicates = parseSolutions(mapSolution);
+
+	iterateOverMap(mapString, ({ character, row, column }) => {
+		const predicate = generatePredicate({
+			character,
+			row,
+			column,
+		});
+
 		const type = predicate.type;
-		if (type == predicateTypes.CELL) {
-			cellPredicates.push(predicate.string);
-		} else if (type == predicateTypes.WALL) {
+		if (type == predicateTypes.WALL) {
 			wallPredicates.push(predicate.string);
-		} else {
+		} else if (type == predicateTypes.WALL_NUMBER) {
 			wallPredicates.push(predicate.additionalWallPredicate);
 			wallWithNumberPredicates.push(predicate.string);
 		}
-
-		rowCounter++;
-	}
+	});
 
 	const sizePredicate = `size(${mapLimit}, ${mapLimit}).\n`;
-	const predicates = includeCells ? cellPredicates : [];
-	return predicates
+	return []
+		.concat(lightPredicates)
 		.concat(wallPredicates)
 		.concat(wallWithNumberPredicates)
 		.concat(sizePredicate);
 };
 
-// TODO: Refactor the two parsing functions
 const parseSolutions = (solutionsString) => {
-    const lightPredicates = [];
-	const mapLimit = Math.sqrt(solutionsString.length);
-
-	let rowCounter = 1;
-	let columnCounter = mapLimit;
-
-	for (const character of mapString) {
-		// Reset row counter and move to another row
-		// when you reach the end of the grid.
-		if (rowCounter > mapLimit) {
-			rowCounter = 1;
-			columnCounter--;
+	const lightPredicates = [];
+	iterateOverMap(solutionsString, ({ character, row, column }) => {
+		if (character == 1) {
+			lightPredicates.push(`light(cell(${row}, ${column})).`);
 		}
-
-        if (character == 1) {
-            lightPredicates.push(`light(cell(${rowCounter}, ${columnCounter}))`);
-        }
-
-		rowCounter++;
-	}
+	});
 
 	return lightPredicates;
-}
+};
 
 // const writeTestsToTestFile = (predicates, filePath) => {
 //     const tests = predicates.join('\n');
@@ -149,7 +154,11 @@ const parseSolutions = (solutionsString) => {
 //     const testFooter
 // }
 
-const writePredicatesToKB = (predicates, filePath) => {
+const writePredicatesToKB = (
+	predicates = [],
+	filePath = 'kb.pl',
+	mapURL = ''
+) => {
 	const kb = predicates.join('\n');
 
 	/**
@@ -158,6 +167,7 @@ const writePredicatesToKB = (predicates, filePath) => {
 	 * not to mess up the readability of the knowledge base.
 	 */
 	const warningMessage = `% THIS FILE IS AUTO GENERATED. DO NOT EDIT DIRECTLY.\n`;
+	const mapFromMessage = `% MAP URL: ${mapURL}\n`;
 	const moduleDefinition = `:- module(kb, [
     size/2,
     wall/2,
@@ -172,47 +182,40 @@ const writePredicatesToKB = (predicates, filePath) => {
 :- dynamic light/1.
 :- dynamic lit/1.
 `;
+	const finalString = warningMessage
+		.concat(mapFromMessage)
+		.concat(moduleDefinition)
+		.concat(kb)
+		.concat(dynamicDefinitions);
 
 	try {
-		fs.writeFileSync(filePath, warningMessage);
-		fs.writeFileSync(filePath, moduleDefinition, { flag: 'a' });
-		fs.writeFileSync(filePath, kb, { flag: 'a' });
-		fs.writeFileSync(filePath, dynamicDefinitions, { flag: 'a' });
+		fs.writeFileSync(filePath, finalString);
 	} catch (error) {
 		console.error(error);
 	}
 };
 
-const readMapFromTextFile = (filePath) => {
-	try {
-		console.log(`\nReading map from ${filePath} ...\n`);
-		const mapString = fs.readFileSync(filePath, 'utf8');
-		return mapString;
-	} catch (error) {
-		console.error('Error reading map file.');
-		console.error(error);
-	}
-};
-
-const getMapURL = () => {
-	return process.argv[2];
+const readUserInput = () => {
+	return {
+		mapURL: process.argv[2],
+		shouldGenerateLightPredicates: process.argv[3] == 'yes',
+	};
 };
 
 const main = async () => {
-	const kbFilePath = path.resolve(__dirname, `../kb.pl`);
-
-	// You can either read a map from a text file or fetch it online.
-	const mapURL = getMapURL();
+	const { mapURL, shouldGenerateLightPredicates } = readUserInput();
 	if (!mapURL)
 		return console.error('[ERROR]: Please provide a valid map URL.');
 
-	const { mapString, mapSolution } = await fetchMap(mapURL);
-	const predicates = parseMap(mapString);
-    // const tests = parseSolution(mapSolution);
+	const mapInfo = await fetchMap(mapURL);
+	const predicates = parseMap(mapInfo, shouldGenerateLightPredicates);
 
-	writePredicatesToKB(predicates, kbFilePath);
-    // writeTestsToTestFile()
-	console.log(`Map written successfully to file kb.pl.`);
+	const kbFilePath = path.resolve(__dirname, `../kb.pl`);
+	writePredicatesToKB(predicates, kbFilePath, mapURL);
+    if (shouldGenerateLightPredicates) {
+        console.log("Light predicates are included.\n");
+    }
+	console.log(`[SUCCESS]: Map written successfully to file kb.pl.`);
 };
 
 main();

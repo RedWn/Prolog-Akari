@@ -2,10 +2,10 @@
     is_cell_valid/1,
     get_all_normal_cells/1,
     get_all_available_cells/1,
+    get_all_lit_cells/1,
     all_neighbors_of/2,
-    all_neighbors_of_without_lights/2,
     all_unlit_neighbors/2,
-    diag_neightbour_of/2
+    diagonal_neighbor_of/2
 ]).
 
 % A cell is valid if it's positioned within the boundaries of the grid.
@@ -68,6 +68,9 @@ get_all_available_cells(List) :-
     subtract(List1, Lit, List2),
     subtract(List2, Wall, List).
 
+get_all_lit_cells(List) :-
+    findall(cell(X, Y), lit(cell(X, Y)), List).
+
 % Checks if a certain cell is adjacent to another one.
 % Note that diagonal cells aren't considered adjacent.
 adjacent_to(cell(X, Y), cell(A, B)) :-
@@ -89,7 +92,7 @@ neighbor_of(cell(X, Y), cell(A, B)) :-
     adjacent_to(cell(X, Y), cell(A, B)),
     is_cell_valid(cell(A, B)).
 
-% Find all the neighbors of a cell(X, Y) that are not walls.       
+% Find all the neighbors of a cell(X, Y) that are not walls.
 all_neighbors_of(cell(X, Y), List) :- 
     findall(
         cell(A, B),
@@ -100,18 +103,7 @@ all_neighbors_of(cell(X, Y), List) :-
         List
     ).
 
-% Same as finding all neighbors, excluding light cells (Light cells, not lit ones).
-all_neighbors_of_without_lights(cell(X, Y), List) :- 
-    findall(
-        cell(A, B),
-        (
-            neighbor_of(cell(X, Y), cell(A, B)),
-            \+ wall(A, B),
-            \+ light(cell(A, B))
-        ),
-        List
-    ).
-
+% Find all the neighbors of a cell(X, Y) that are not lit.
 all_unlit_neighbors(cell(X, Y), List) :-
     findall(
         cell(A, B),
@@ -123,12 +115,8 @@ all_unlit_neighbors(cell(X, Y), List) :-
         List
     ).
 
-% Find all the neighbors of a cell(X, Y) that may contain walls.       
-all_neighbors_of_with_walls(cell(X, Y), List) :- 
-    findall(cell(A, B), neighbor_of(cell(X, Y), cell(A, B)), List).
-
-% Checks if 2nd cell is on the diag of the 1st
-diag_to(cell(X, Y), cell(A, B)) :-
+% Checks if second cell is on one of the diagonals of the first cell.
+diagonal_to(cell(X, Y), cell(A, B)) :-
     A is X + 1,
     B is Y + 1;
     
@@ -141,13 +129,9 @@ diag_to(cell(X, Y), cell(A, B)) :-
     A is X - 1,
     B is Y + 1.
 
-% Checks if the two cells are on a diagonal
-diag_neightbour_of(cell(X, Y), cell(A, B)) :-
+% Checks if the two cells are on one diagonal.
+diagonal_neighbor_of(cell(X, Y), cell(A, B)) :-
     is_cell_valid(cell(X, Y)),
-    diag_to(cell(X, Y), cell(A, B)),
+    diagonal_to(cell(X, Y), cell(A, B)),
     is_cell_valid(cell(A, B)),
     \+ wall(A, B).				
-
-% Find all diagonal related cells and put them in List
-all_diag_neighbors_of(cell(X, Y), List) :- 
-    findall(cell(A, B), diag_neightbour_of(cell(X, Y), cell(A, B)), List).

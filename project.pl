@@ -8,13 +8,32 @@ mark_list_as_lit([cell(X, Y) | T]) :-
     assert(lit(cell(X, Y))),
     mark_list_as_lit(T).
 
-% Normal cells list should be == Lit cells list
-% Therefore Length(Normal) - Length(Lit) == 0.
+% A cell is lit if either of the following is true:
+%   1. It is asserted as lit.
+%   2. It is a light.
+%   3. There are lights in either of its X or Y rays.
+is_cell_lit(cell(X, Y)) :- lit(cell(X, Y)), !.
+is_cell_lit(cell(X, Y)) :- light(cell(X, Y)), !.
+is_cell_lit(cell(X, Y)) :-
+    xray_of(cell(X, Y), XRay),
+    yray_of(cell(X, Y), YRay),
+    count_light_cells(XRay, LightsInXRay),
+    count_light_cells(YRay, LightsInYRay),
+    (
+        LightsInXRay > 0, !;
+        LightsInYRay > 0
+    ).
+
+is_list_lit([]).
+is_list_lit([cell(X, Y) | T]) :-
+    is_cell_lit(cell(X, Y)),
+    is_list_lit(T).
+
+% Returns whether all normal cells are lit or not.
 all_cells_lit :- 
     get_all_normal_cells(List),
-    findall(cell(A, B), lit(cell(A, B)), Litlist),
-    subtract(List, Litlist, FinalList),
-    length(FinalList, 0).
+    is_list_lit(List).
+
 
 count_light_cells__([], Accumulator, Accumulator).
 count_light_cells__([H | T], Accumulator, Count) :-
@@ -25,10 +44,6 @@ count_light_cells__([H | T], Accumulator, Count) :-
             count_light_cells__(T, Accumulator, Count)
     ).
 count_light_cells(List, Count) :- count_light_cells__(List, 0, Count).
-
-get_all_light_cells(List, Count) :-
-    findall(cell(X,Y), light(cell(X, Y)), List),
-    length(List, Count).
 
 % Returns true if there is only one light in every single axis in the grid.
 no_double_light :- 
@@ -133,14 +148,19 @@ light_up_neighbors([cell(X, Y) | T]) :-
     light_up_list(List),
     light_up_neighbors(T).
 
+
 % Finds walls with numbers that have an equal number of neighbors
 % and make sure those neighbors are unlit.
 find_wall_num_that_have_equal_neighbors(List) :-
     findall(cell(X, Y), (
         wall_num(X, Y, GoalNumberOfLights),
         all_neighbors_of(cell(X, Y), NeighborsList),
-        findall(cell(A, B), lit(cell(A, B)), Litlist),
-        subtract(NeighborsList, Litlist, FinalList),
+
+        % FIXME: I don't think it's correct to search for all lit cells
+        % in every iteration of this predicate. Perhaps we should move it to the top.
+        get_all_lit_cells(LitList),
+
+        subtract(NeighborsList, LitList, FinalList),
         length(FinalList, NumberOfNeighbors),
         get_adjacent_lights_count(cell(X, Y), ActualNumberOfLights),
         GoalNumberOfLights - ActualNumberOfLights  =:= NumberOfNeighbors,
@@ -177,7 +197,7 @@ wall_num_with_NPlusOne_available_neighbors(cell(X, Y)) :-
 mark_diag_as_unavailable__ :-
     % Get wall_num and one if its diagonal cells
     wall_num_with_NPlusOne_available_neighbors(cell(X, Y)),
-	diag_neightbour_of(cell(X, Y), cell(A, B)),
+	diagonal_neighbor_of(cell(X, Y), cell(A, B)),
 
     % Get the neighbors of wall_num and diagonal cell
 	all_unlit_neighbors(cell(X, Y), NeighborsOfWallNum),
