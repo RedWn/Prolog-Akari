@@ -64,7 +64,7 @@ First, make sure that you have `Node` installed on your machine.
 -   `lit(cell(X, Y))`: Means that cell X, Y is lit by a light.
 -   `light(cell(X, Y))`: Means that cell X, Y is a light source.
 
-## Graphically Represented Results
+# Graphically Represented Results
 You can use our provided C++ project which in turn runs a SWI-Prolog instance within it, that relies on "project.pl" file, to see the puzzle before and after -if the algorithm could solve- solving.
 ## Building:
 Make sure you have the following dependencies:
