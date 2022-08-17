@@ -64,6 +64,21 @@ First, make sure that you have `Node` installed on your machine.
 -   `lit(cell(X, Y))`: Means that cell X, Y is lit by a light.
 -   `light(cell(X, Y))`: Means that cell X, Y is a light source.
 
+## Graphically Represented Results
+You can use our provided C++ project which in turn runs a SWI-Prolog instance within it, that relies on "project.pl" file, to see the puzzle before and after -if the algorithm could solve- solving.
+## Building:
+Make sure you have the following dependencies:
+- SFML development libraries
+- glbinding development libraries
+- SWI-Prolog development library
+With these installed you can build using the provided Meson script.
+## Running:
+Run the application with "project.pl" being the second command line argument.
+Press the space button and the algorithm will attempt to solve the puzzle.
+In case the algortithm failed to solve the puzzle, it will basically freeze the app until you close it.
+
+P.S : All the provided textures are public domain.
+
 ## Solution Algorithm
 
 TODO: @redwn please elaborate on the algorithm here.
