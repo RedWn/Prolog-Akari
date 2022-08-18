@@ -73,7 +73,7 @@ Make sure you have the following dependencies:
 - SWI-Prolog development library
 With these installed you can build using the provided Meson script.
 ## Running
-Run the application with "project.pl" being the second command line argument.
+Run the application with the path to "project.pl" being the second command line argument.
 Press the space button and the algorithm will attempt to solve the puzzle.
 In case the algortithm failed to solve the puzzle, it will basically freeze the app until you close it.
 ## Snapshots
